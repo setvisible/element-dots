@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setWindowTitle(QString("%0 v%1").arg(STR_APPLICATION_NAME).arg(STR_APPLICATION_VERSION));
     this->setWindowIcon(QIcon(":/res/logo/Webalys-Kameleon.pics-Chessboard.ico"));
 
+    connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(about()));
+
     connect(ui->radioButton_acid,   SIGNAL(released()), this, SLOT(onRadioChanged()));
     connect(ui->radioButton_air,    SIGNAL(released()), this, SLOT(onRadioChanged()));
     connect(ui->radioButton_earth,  SIGNAL(released()), this, SLOT(onRadioChanged()));
@@ -51,6 +53,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(ui->clearButton, SIGNAL(released()), ui->gamewidget, SLOT(clear()));
 
+    // Enforce the "Earth" brush.
+    ui->radioButton_rock->setChecked(true);
+    ui->radioButton_earth->setChecked(true);
+    ui->gamewidget->setCurrentBrush(QLatin1String("earth"));
 }
 
 MainWindow::~MainWindow()
@@ -65,7 +71,6 @@ void MainWindow::about()
     QMessageBox msgBox(QMessageBox::NoIcon, tr("About %0").arg(STR_APPLICATION_NAME), aboutHtml());
     msgBox.exec();
 }
-
 
 void MainWindow::onRadioChanged()
 {

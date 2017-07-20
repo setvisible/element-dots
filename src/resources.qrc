@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>res/logo/Webalys-Kameleon.pics-Chessboard.ico</file>
+        <file>res/logo/Chessboard_128x128.png</file>
     </qresource>
 </RCC>
