@@ -50,7 +50,7 @@
  *
  */
 
-static double random() // returned value between 0. and 1.
+static double random() // returned value between 0 and 1
 {
     Q_ASSERT(RAND_MAX > 0);
     return (double)(qrand())/RAND_MAX;
@@ -70,8 +70,8 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent)
     /* initialize the pseudo-random number generator with a seed value. */
     qsrand(QTime::currentTime().msec());
 
-    gameAreaSizeHeight =  100;
-    gameAreaSizeWidth = 100;
+    m_gameAreaSizeHeight =  100;
+    m_gameAreaSizeWidth = 100;
     m_currentBrush = Brush::Water;
     m_gridColor = "#000";
 
@@ -85,17 +85,17 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent)
     m_fountainTimer->start();
 
 
-    m_world     = new char[(gameAreaSizeHeight) * (gameAreaSizeWidth)];
-    m_world_old = new char[(gameAreaSizeHeight) * (gameAreaSizeWidth)];
-    m_world_lock = new bool[(gameAreaSizeHeight) * (gameAreaSizeWidth)];
+    m_world     = new char[(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth)];
+    m_world_old = new char[(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth)];
+    m_world_lock = new bool[(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth)];
 
-    memset(m_world    , (char)Brush::Air, sizeof(char)*(gameAreaSizeHeight) * (gameAreaSizeWidth));
-    memset(m_world_old, (char)Brush::Air, sizeof(char)*(gameAreaSizeHeight) * (gameAreaSizeWidth));
-    memset(m_world_lock, false, sizeof(bool)*(gameAreaSizeHeight) * (gameAreaSizeWidth));
+    memset(m_world    , (char)Brush::Air, sizeof(char)*(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth));
+    memset(m_world_old, (char)Brush::Air, sizeof(char)*(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth));
+    memset(m_world_lock, false, sizeof(bool)*(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth));
 
-    m_spawn << Fountain{(int)(0.6 * gameAreaSizeWidth/2), (int)(gameAreaSizeWidth/5), Brush::Water};
-    m_spawn << Fountain{(int)(1.0 * gameAreaSizeWidth/2), (int)(gameAreaSizeWidth/5), Brush::Sand};
-    m_spawn << Fountain{(int)(1.4 * gameAreaSizeWidth/2), (int)(gameAreaSizeWidth/5), Brush::Oil};
+    m_spawn << Fountain{(int)(0.6 * m_gameAreaSizeWidth/2), (int)(m_gameAreaSizeWidth/5), Brush::Water};
+    m_spawn << Fountain{(int)(1.0 * m_gameAreaSizeWidth/2), (int)(m_gameAreaSizeWidth/5), Brush::Sand};
+    m_spawn << Fountain{(int)(1.4 * m_gameAreaSizeWidth/2), (int)(m_gameAreaSizeWidth/5), Brush::Oil};
 
 }
 
@@ -114,13 +114,13 @@ void GameWidget::clear()
     if (m_world_old ) delete [] m_world_old;
     if (m_world_lock) delete [] m_world_lock;
 
-    m_world     = new char[(gameAreaSizeHeight) * (gameAreaSizeWidth)];
-    m_world_old = new char[(gameAreaSizeHeight) * (gameAreaSizeWidth)];
-    m_world_lock = new bool[(gameAreaSizeHeight) * (gameAreaSizeWidth)];
+    m_world     = new char[(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth)];
+    m_world_old = new char[(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth)];
+    m_world_lock = new bool[(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth)];
 
-    memset(m_world    , (char)Brush::Air, sizeof(char)*(gameAreaSizeHeight) * (gameAreaSizeWidth));
-    memset(m_world_old, (char)Brush::Air, sizeof(char)*(gameAreaSizeHeight) * (gameAreaSizeWidth));
-    memset(m_world_lock, false, sizeof(bool)*(gameAreaSizeHeight) * (gameAreaSizeWidth));
+    memset(m_world    , (char)Brush::Air, sizeof(char)*(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth));
+    memset(m_world_old, (char)Brush::Air, sizeof(char)*(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth));
+    memset(m_world_lock, false, sizeof(bool)*(m_gameAreaSizeHeight) * (m_gameAreaSizeWidth));
 
     update();
 }
@@ -181,12 +181,12 @@ QString GameWidget::color(const Brush d) const
  ***********************************************************************************/
 void GameWidget::updateGame()
 {
-    for (int y = gameAreaSizeHeight - 1; y >= 0; y--) {
-        for (int x = 0; x < gameAreaSizeWidth; x++) {
+    for (int y = m_gameAreaSizeHeight - 1; y >= 0; y--) {
+        for (int x = 0; x < m_gameAreaSizeWidth; x++) {
 
             /// \todo if (m_worldLock[y * gameAreaSizeWidth + x]==true) continue;
 
-            if ( y >= gameAreaSizeHeight - 1 ) {
+            if ( y >= m_gameAreaSizeHeight - 1 ) {
                 killDot(x,y);
             }
 
@@ -430,15 +430,15 @@ void GameWidget::boom(const int x, const int y, const Brush brush)
     const int height = 20;
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
-            int index = (y-j) * gameAreaSizeWidth + (x+i);
-            if (index >= 0 && index < gameAreaSizeWidth * gameAreaSizeHeight) {
+            int index = (y-j) * m_gameAreaSizeWidth + (x+i);
+            if (index >= 0 && index < m_gameAreaSizeWidth * m_gameAreaSizeHeight) {
                 m_world[index] = (char)brush;
             }
         }
     }
 }
 
-void GameWidget::liquid(const int x, const int y, const Brush c)
+void GameWidget::liquid(const int x, const int y, const Brush brush)
 {
     const Brush r1 = dot(x+1,y);
     const Brush r2 = dot(x+2,y);
@@ -446,15 +446,22 @@ void GameWidget::liquid(const int x, const int y, const Brush c)
     const Brush l1 = dot(x-1,y);
     const Brush l2 = dot(x-2,y);
     const Brush l3 = dot(x-3,y);
-    const int w = ((r1==c)?1:0) + ((r2==c)?1:0) + ((r3==c)?1:0) - ((l1==c)?1:0) - ((l2==c)?1:0) - ((l3==c)?1:0);
+
+    const int w = ((r1==brush) ? 1 : 0 )
+            + ( (r2==brush) ? 1 : 0 )
+            + ( (r3==brush) ? 1 : 0 )
+            - ( (l1==brush) ? 1 : 0 )
+            - ( (l2==brush) ? 1 : 0 )
+            - ( (l3==brush) ? 1 : 0 );
+
     if (w<=0 && random()<0.5) {
-        if      (r1==Brush::Air && dot(x+1,y-1)!=c) moveDot(x,y,x+1,y,Brush::Air,c);
-        else if (r2==Brush::Air && dot(x+2,y-1)!=c) moveDot(x,y,x+2,y,Brush::Air,c);
-        else if (r3==Brush::Air && dot(x+3,y-1)!=c) moveDot(x,y,x+3,y,Brush::Air,c);
+        if      (r1==Brush::Air && dot(x+1,y-1)!=brush) moveDot(x,y,x+1,y,Brush::Air,brush);
+        else if (r2==Brush::Air && dot(x+2,y-1)!=brush) moveDot(x,y,x+2,y,Brush::Air,brush);
+        else if (r3==Brush::Air && dot(x+3,y-1)!=brush) moveDot(x,y,x+3,y,Brush::Air,brush);
     } else if (w>=0 && random()<0.5) {
-        if      (l1==Brush::Air && dot(x-1,y-1)!=c) moveDot(x,y,x-1,y,Brush::Air,c);
-        else if (l2==Brush::Air && dot(x-2,y-1)!=c) moveDot(x,y,x-2,y,Brush::Air,c);
-        else if (l3==Brush::Air && dot(x-3,y-1)!=c) moveDot(x,y,x-3,y,Brush::Air,c);
+        if      (l1==Brush::Air && dot(x-1,y-1)!=brush) moveDot(x,y,x-1,y,Brush::Air,brush);
+        else if (l2==Brush::Air && dot(x-2,y-1)!=brush) moveDot(x,y,x-2,y,Brush::Air,brush);
+        else if (l3==Brush::Air && dot(x-3,y-1)!=brush) moveDot(x,y,x-3,y,Brush::Air,brush);
     }
 }
 
@@ -462,8 +469,8 @@ void GameWidget::liquid(const int x, const int y, const Brush c)
  ***********************************************************************************/
 void GameWidget::addDot(const int x, const int y, const Brush brush)
 {
-    const int index = y * gameAreaSizeWidth + x;
-    if (index >= 0 && index < gameAreaSizeWidth * gameAreaSizeHeight) {
+    const int index = y * m_gameAreaSizeWidth + x;
+    if (index >= 0 && index < m_gameAreaSizeWidth * m_gameAreaSizeHeight) {
         m_world[index] = (char)brush;
         m_world_lock[index] = true;
     }
@@ -473,11 +480,11 @@ void GameWidget::moveDot(const int x, const int y,
                          const int nx, const int ny,
                          const Brush brush, const Brush nbrush)
 {    
-    const int index = y * gameAreaSizeWidth + x;
-    const int index_n = ny * gameAreaSizeWidth + nx;
+    const int index = y * m_gameAreaSizeWidth + x;
+    const int index_n = ny * m_gameAreaSizeWidth + nx;
     if (index >= 0 && index_n >= 0
-            && index < gameAreaSizeWidth * gameAreaSizeHeight
-            && index_n < gameAreaSizeWidth * gameAreaSizeHeight) {
+            && index < m_gameAreaSizeWidth * m_gameAreaSizeHeight
+            && index_n < m_gameAreaSizeWidth * m_gameAreaSizeHeight) {
         m_world[ index ] = (char)brush;
         m_world_lock[ index ] = (brush!=Brush::Air);
         m_world[ index_n ] = (char)nbrush;
@@ -487,8 +494,8 @@ void GameWidget::moveDot(const int x, const int y,
 
 void GameWidget::killDot(const int x, const int y)
 {
-    const int index = y * gameAreaSizeWidth + x;
-    if (index >= 0 && index < gameAreaSizeWidth * gameAreaSizeHeight) {
+    const int index = y * m_gameAreaSizeWidth + x;
+    if (index >= 0 && index < m_gameAreaSizeWidth * m_gameAreaSizeHeight) {
         m_world[index] = (char)Brush::Air;
         m_world_lock[index] = false;
     }
@@ -553,32 +560,35 @@ void GameWidget::mousePressEvent(QMouseEvent *event)
         m_isSpawningDots = true;
     }
 
-    double cellWidth = (double)width()/gameAreaSizeWidth;
-    double cellHeight = (double)height()/gameAreaSizeHeight;
-    m_mousePosY = floor(event->y()/cellHeight);
-    m_mousePosX = floor(event->x()/cellWidth);
+    double cellWidth = (double)width()/m_gameAreaSizeWidth;
+    double cellHeight = (double)height()/m_gameAreaSizeHeight;
+    m_mousePosY = qFloor(event->y()/cellHeight);
+    m_mousePosX = qFloor(event->x()/cellWidth);
 
     spawnFountain();
 }
 
-void GameWidget::mouseReleaseEvent(QMouseEvent */*e*/)
+void GameWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
+
     m_isSpawningDots = false;
 }
 
-void GameWidget::mouseMoveEvent(QMouseEvent *e)
+void GameWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    double cellWidth = (double)width()/gameAreaSizeWidth;
-    double cellHeight = (double)height()/gameAreaSizeHeight;
+    double cellWidth = (double)width()/m_gameAreaSizeWidth;
+    double cellHeight = (double)height()/m_gameAreaSizeHeight;
 
-    m_mousePosY = floor(e->y()/cellHeight);
-    m_mousePosX = floor(e->x()/cellWidth);
+    m_mousePosY = qFloor(event->y()/cellHeight);
+    m_mousePosX = qFloor(event->x()/cellWidth);
 }
 
 /***********************************************************************************
  ***********************************************************************************/
-void GameWidget::paintEvent(QPaintEvent *)
+void GameWidget::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
     QPainter p(this);
     paintGrid(p);
     paintUniverse(p);
@@ -586,7 +596,7 @@ void GameWidget::paintEvent(QPaintEvent *)
 
 GameWidget::Brush GameWidget::dot(const int x, const int y) const
 {
-    return (Brush)m_world[ y*gameAreaSizeWidth + x ];
+    return (Brush)m_world[ y * m_gameAreaSizeWidth + x ];
 }
 
 
@@ -596,11 +606,11 @@ void GameWidget::paintGrid(QPainter &p)
     QColor gridColor = m_gridColor;
     gridColor.setAlpha(10);
     p.setPen(gridColor);
-    double cellWidth = (double)width()/gameAreaSizeWidth; // width of the widget / number of cells at one row
+    double cellWidth = (double)width()/m_gameAreaSizeWidth;
     for(double k = cellWidth; k <= width(); k += cellWidth) {
         p.drawLine(k, 0, k, height());
     }
-    double cellHeight = (double)height()/gameAreaSizeHeight; // height of the widget / number of cells at one row
+    double cellHeight = (double)height()/m_gameAreaSizeHeight;
     for(double k = cellHeight; k <= height(); k += cellHeight) {
         p.drawLine(0, k, width(), k);
     }
@@ -609,29 +619,29 @@ void GameWidget::paintGrid(QPainter &p)
 
 void GameWidget::paintUniverse(QPainter &p)
 {
-    double cellWidth = (double)width()/gameAreaSizeWidth;
-    double cellHeight = (double)height()/gameAreaSizeHeight;
+    double cellWidth = (double)width()/m_gameAreaSizeWidth;
+    double cellHeight = (double)height()/m_gameAreaSizeHeight;
 
-    for (int y = gameAreaSizeHeight - 1; y >= 0; y--) {
-        for (int x = 0; x < gameAreaSizeWidth; x++) {
+    for (int y = m_gameAreaSizeHeight - 1; y >= 0; y--) {
+        for (int x = 0; x < m_gameAreaSizeWidth; x++) {
 
-            Brush d = dot(x,y);
+            Brush brush = dot(x,y);
 
             /// \todo Draw only new dots
 
-            Q_ASSERT(d >= Brush::Acid && d <= Brush::Water);
+            Q_ASSERT(brush >= Brush::Acid && brush <= Brush::Water);
 
-            if (d != Brush::Air) {
+            if (brush != Brush::Air) {
                 qreal left = (qreal)(cellWidth*x);
                 qreal top  = (qreal)(cellHeight*y);
                 QRectF r(left, top, (qreal)cellWidth, (qreal)cellHeight);
 
-                QColor color1 = color(d);
+                QColor color1 = color(brush);
                 p.fillRect(r, QBrush(color1));
             }
 
-            m_world_old[y*gameAreaSizeWidth + x] = (char)d;
-            m_world_lock[y*gameAreaSizeWidth + x] = false;
+            m_world_old[ y * m_gameAreaSizeWidth + x] = (char)brush;
+            m_world_lock[ y * m_gameAreaSizeWidth + x] = false;
 
         }
     }

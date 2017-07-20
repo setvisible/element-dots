@@ -57,10 +57,10 @@ public:
     void setCurrentBrush(const QString &name);
 
 protected:
-    void paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
 Q_SIGNALS:
 
@@ -81,8 +81,8 @@ private:
     char* m_world_old;
     bool* m_world_lock;
 
-    int gameAreaSizeHeight;
-    int gameAreaSizeWidth;
+    int m_gameAreaSizeHeight;
+    int m_gameAreaSizeWidth;
 
     Brush m_currentBrush;
     QColor m_gridColor;
@@ -94,7 +94,7 @@ private:
     QList<Fountain> m_spawn; // fountains
 
     void boom(const int x, const int y, const Brush brush) ;
-    void liquid(const int x, const int y, const Brush c);
+    void liquid(const int x, const int y, const Brush brush);
 
     void addDot(const int x, const int y, const Brush brush);
     void moveDot(const int x, const int y,
