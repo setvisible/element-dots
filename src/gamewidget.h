@@ -88,6 +88,7 @@ private:
     inline void killDot(const int x, const int y);
 
     inline void spawnDot(const int x, const int y, const Brush brush);
+    inline void spawnMouse();
 
     void paintGrid(QPainter &p);
     void paintUniverse(QPainter &p);

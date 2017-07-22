@@ -121,12 +121,12 @@ void GameWidget::setCurrentBrush(const QString &name)
  ***********************************************************************************/
 void GameWidget::updateGame()
 {
-    for (int y = m_world->height() - 1; y >= 0; y--) {
+    for (int y = m_world->height()-1; y >= 0; y--) {
         for (int x = 0; x < m_world->width(); x++) {
 
             /// \todo if (m_worldLock[y * gameAreaSizeWidth + x]==true) continue;
 
-            if ( y >= m_world->height() - 1 ) {
+            if ( y >= m_world->height() ) {
                 killDot(x,y);
             }
 
@@ -429,53 +429,45 @@ inline void GameWidget::killDot(const int x, const int y)
 
 /***********************************************************************************
  ***********************************************************************************/
+static bool isSolid(const Brush brush)
+{
+    return (brush==Brush::Earth || brush==Brush::Plasma || brush==Brush::Rock);
+}
+
 inline void GameWidget::spawnDot(const int x, const int y, const Brush brush)
 {
-    switch (brush) {
-    case Brush::Earth:
-    case Brush::Plasma:
-    case Brush::Rock:
-    {
+    if (isSolid(brush)) {
         const int total = 4;
         for (int i = 0; i <= total; ++i) {
             for (int j = 0; j <= total; ++j) {
-
                 if ((i==0 || i==total) && (j==0 || j==total))
                     continue;
-
-                addDot(x-(total/2)+i, y-(total/2)+j, brush);
+                if (m_world->dot(x-(total/2)+i, y-(total/2)+j) != brush) {
+                    addDot(x-(total/2)+i, y-(total/2)+j, brush);
+                }
             }
         }
-    }
-        break;
-    case Brush::Acid:
-    case Brush::Air:
-    case Brush::Fire:
-    case Brush::Oil:
-    case Brush::Sand:
-    case Brush::Steam:
-    case Brush::Water:
+    } else {
         addDot(x, y, brush);
-
-        break;
-    default:
-        Q_UNREACHABLE();
-        break;
     }
 }
 
 void GameWidget::spawnFountain()
 {
     for (int i = 0; i < m_fountains.count(); i++) {
-        spawnDot(m_fountains.at(i).x + 2, m_fountains.at(i).y + 4, m_fountains.at(i).type);
+        spawnDot(m_fountains.at(i).x, m_fountains.at(i).y, m_fountains.at(i).type);
     }
-
     if (m_isSpawningDots) {
-        spawnDot(m_mousePosX, m_mousePosY, m_currentBrush);
+        spawnMouse();
     }
     update();
 }
 
+
+inline void GameWidget::spawnMouse()
+{
+    spawnDot(m_mousePosX, m_mousePosY, m_currentBrush);
+}
 
 /***********************************************************************************
  ***********************************************************************************/
@@ -486,28 +478,43 @@ void GameWidget::mousePressEvent(QMouseEvent *event)
         m_isSpawningDots = true;
     }
 
-    double cellWidth = (double)width()/m_world->width();
-    double cellHeight = (double)height()/m_world->height();
-    m_mousePosY = qFloor(event->y()/cellHeight);
+    const double cellWidth = (double)width()/m_world->width();
+    const double cellHeight = (double)height()/m_world->height();
     m_mousePosX = qFloor(event->x()/cellWidth);
+    m_mousePosY = qFloor(event->y()/cellHeight);
 
-    spawnFountain();
+    if (isSolid(m_currentBrush)) {
+        spawnMouse();
+    }
 }
 
 void GameWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
-
     m_isSpawningDots = false;
 }
 
 void GameWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    double cellWidth = (double)width()/m_world->width();
-    double cellHeight = (double)height()/m_world->height();
+    const double cellWidth = (double)width()/m_world->width();
+    const double cellHeight = (double)height()/m_world->height();
+    const int posX = qFloor(event->x()/cellWidth);
+    const int posY = qFloor(event->y()/cellHeight);
 
-    m_mousePosY = qFloor(event->y()/cellHeight);
-    m_mousePosX = qFloor(event->x()/cellWidth);
+    if (isSolid(m_currentBrush)) {
+        const double dx = posX - m_mousePosX;
+        const double dy = posY - m_mousePosY;
+        const double length = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
+
+        for (int i = 0; i < length + 1; ++i) {
+            const double pc = (double)i/length;
+            const int xx = m_mousePosX + dx*pc;
+            const int yy = m_mousePosY + dy*pc;
+            spawnDot(xx, yy, m_currentBrush);
+        }
+    }
+    m_mousePosX = posX;
+    m_mousePosY = posY;
 }
 
 /***********************************************************************************
@@ -542,7 +549,7 @@ void GameWidget::paintUniverse(QPainter &p)
     double cellWidth = (double)width()/m_world->width();
     double cellHeight = (double)height()/m_world->height();
 
-    for (int y = m_world->height() - 1; y >= 0; y--) {
+    for (int y = m_world->height(); y >= 0; y--) {
         for (int x = 0; x < m_world->width(); x++) {
 
             Brush brush = m_world->dot(x,y);
