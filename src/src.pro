@@ -28,12 +28,16 @@ INCLUDEPATH += $$PWD/../include/
 HEADERS += \
     $$PWD/about.h \
     $$PWD/builddefs.h \
+    $$PWD/gamematerial.h \
     $$PWD/gamewidget.h \
+    $$PWD/gameworld.h \
     $$PWD/globals.h \
     $$PWD/mainwindow.h
 
 SOURCES += \
+    $$PWD/gamematerial.cpp \
     $$PWD/gamewidget.cpp \
+    $$PWD/gameworld.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp
 

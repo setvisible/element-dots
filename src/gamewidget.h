@@ -22,27 +22,17 @@
  * SOFTWARE.
  */
 
-#ifndef GAMEWIDGET_H
-#define GAMEWIDGET_H
+#ifndef GAME_WIDGET_H
+#define GAME_WIDGET_H
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 
+#include <gamematerial.h>
+
+class GameWorld;
 class GameWidget : public QWidget
 {
     Q_OBJECT
-
-    enum class Brush {
-        Acid     = 0,
-        Air      = 1,
-        Earth    = 2,
-        Fire     = 3,
-        Oil      = 4,
-        Plasma   = 5,
-        Rock     = 6,
-        Sand     = 7,
-        Steam    = 8,
-        Water    = 9
-    };
 
     struct Fountain {
         int x;
@@ -54,6 +44,7 @@ public:
     explicit GameWidget(QWidget *parent = 0);
     ~GameWidget();
 
+    Brush currentBrush() const;
     void setCurrentBrush(const QString &name);
 
 protected:
@@ -77,12 +68,7 @@ private Q_SLOTS:
 private:
     QTimer* m_updateTimer;
     QTimer* m_fountainTimer;
-    char* m_world;
-    char* m_world_old;
-    bool* m_world_lock;
-
-    int m_gameAreaSizeHeight;
-    int m_gameAreaSizeWidth;
+    GameWorld* m_world;
 
     Brush m_currentBrush;
     QColor m_gridColor;
@@ -91,26 +77,21 @@ private:
     int m_mousePosX;
     int m_mousePosY;
 
-    QList<Fountain> m_spawn; // fountains
+    QList<Fountain> m_fountains;
 
-    void boom(const int x, const int y, const Brush brush) ;
-    void liquid(const int x, const int y, const Brush brush);
+    inline void boom(const int x, const int y, const Brush brush) ;
+    inline void liquid(const int x, const int y, const Brush brush);
 
-    void addDot(const int x, const int y, const Brush brush);
-    void moveDot(const int x, const int y,
-                 const int nx, const int ny,
-                 const Brush brush, const Brush nbrush);
-    void killDot(const int x, const int y);
+    inline void addDot(const int x, const int y, const Brush brush);
+    inline void moveDot(const int x, const int y, const int nx, const int ny,
+                        const Brush brush, const Brush nbrush);
+    inline void killDot(const int x, const int y);
 
-    void spawnDot(const int x, const int y, const Brush brush);
+    inline void spawnDot(const int x, const int y, const Brush brush);
 
     void paintGrid(QPainter &p);
     void paintUniverse(QPainter &p);
 
-    inline Brush dot(const int x, const int y) const;
-    inline QString color(const Brush d) const;
-
-
 };
 
-#endif // GAMEWIDGET_H
+#endif // GAME_WIDGET_H
