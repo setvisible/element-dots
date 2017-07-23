@@ -22,51 +22,69 @@
  * SOFTWARE.
  */
 
-#ifndef GAME_WIDGET_H
-#define GAME_WIDGET_H
+#ifndef GAME_ENGINE_H
+#define GAME_ENGINE_H
 
-#include <QtWidgets/QWidget>
+#include <QtCore/QObject>
 
 #include "gamematerial.h"
 
-class GameEngine;
-class GameWidget : public QWidget
+class QTimer;
+class GameWorld;
+class GameEngine : public QObject
 {
     Q_OBJECT
 
+    struct Fountain {
+        int x;
+        int y;
+        Brush type;
+    };
 
 public:
-    explicit GameWidget(QWidget *parent = 0);
-    ~GameWidget();
-
-    Brush currentBrush() const;
-    void setCurrentBrush(const Brush brush);
-
-protected:
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+    explicit GameEngine(QObject *parent = 0);
+    ~GameEngine();
 
 Q_SIGNALS:
+    void changed();
 
 public Q_SLOTS:
     void clear();
 
+    Brush currentBrush() const;
+    void setCurrentBrush(const Brush brush);
+
+    GameWorld* world() const;
+
+    void setMousePressed(const bool pressed);
+    void moveMouseTo(const int posX, const int posY);
+
+private Q_SLOTS:
+    void updateGame();
+    void spawnFountain();
 
 private:
-    GameEngine* m_engine;
+    GameWorld* m_world;
+    QTimer* m_updateTimer;
+    QTimer* m_fountainTimer;
+    bool m_isMousePressed;
+    int m_mousePosX;
+    int m_mousePosY;
+    Brush m_currentBrush;
+    QList<Fountain> m_fountains;
 
-    QColor m_gridColor;
 
-    bool m_isSpawningDots; // ddfdfdf
-    int m_mousePosX; // ddfdfdf
-    int m_mousePosY; // ddfdfdf
-    Brush m_currentBrush; // ddfdfdf
+    inline void boom(const int x, const int y, const Brush brush) ;
+    inline void liquid(const int x, const int y, const Brush brush);
 
-    void paintGrid(QPainter &p);
-    void paintUniverse(QPainter &p);
+    inline void addDot(const int x, const int y, const Brush brush);
+    inline void moveDot(const int x, const int y, const int nx, const int ny,
+                        const Brush brush, const Brush nbrush);
+    inline void killDot(const int x, const int y);
+
+    inline void spawnDot(const int x, const int y, const Brush brush);
+    inline void spawnMouse();
 
 };
 
-#endif // GAME_WIDGET_H
+#endif // GAME_ENGINE_H

@@ -22,51 +22,28 @@
  * SOFTWARE.
  */
 
-#ifndef GAME_WIDGET_H
-#define GAME_WIDGET_H
+#ifndef UTILS_H
+#define UTILS_H
 
-#include <QtWidgets/QWidget>
+#include <QtCore/QTime>
+#include <QtCore/qmath.h>
 
-#include "gamematerial.h"
+static bool seeded = false;
 
-class GameEngine;
-class GameWidget : public QWidget
+/*!
+ * \brief Return a random value between 0 and 1.
+ */
+static double random()
 {
-    Q_OBJECT
+    if (!seeded) {
+        /* initialize the pseudo-random number generator with a seed value. */
+        qsrand(QTime::currentTime().msec());
+        seeded = true;
+    }
+    Q_ASSERT(RAND_MAX > 0);
+    return (double)(qrand())/RAND_MAX;
+}
 
 
-public:
-    explicit GameWidget(QWidget *parent = 0);
-    ~GameWidget();
 
-    Brush currentBrush() const;
-    void setCurrentBrush(const Brush brush);
-
-protected:
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-
-Q_SIGNALS:
-
-public Q_SLOTS:
-    void clear();
-
-
-private:
-    GameEngine* m_engine;
-
-    QColor m_gridColor;
-
-    bool m_isSpawningDots; // ddfdfdf
-    int m_mousePosX; // ddfdfdf
-    int m_mousePosY; // ddfdfdf
-    Brush m_currentBrush; // ddfdfdf
-
-    void paintGrid(QPainter &p);
-    void paintUniverse(QPainter &p);
-
-};
-
-#endif // GAME_WIDGET_H
+#endif // UTILS_H

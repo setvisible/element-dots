@@ -28,18 +28,24 @@ INCLUDEPATH += $$PWD/../include/
 HEADERS += \
     $$PWD/about.h \
     $$PWD/builddefs.h \
+    $$PWD/gameengine.h \
     $$PWD/gamematerial.h \
     $$PWD/gamewidget.h \
     $$PWD/gameworld.h \
     $$PWD/globals.h \
+    $$PWD/utils.h \
+    $$PWD/materialradiobutton.h \
     $$PWD/mainwindow.h
 
 SOURCES += \
+    $$PWD/gameengine.cpp \
     $$PWD/gamematerial.cpp \
     $$PWD/gamewidget.cpp \
     $$PWD/gameworld.cpp \
+    $$PWD/materialradiobutton.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp
+
 
 FORMS += \
     $$PWD/mainwindow.ui
