@@ -39,6 +39,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setWindowTitle(QString("%0 v%1").arg(STR_APPLICATION_NAME).arg(STR_APPLICATION_VERSION));
     this->setWindowIcon(QIcon(":/res/logo/Webalys-Kameleon.pics-Chessboard.ico"));
 
+    ui->radioButton_acid->setBrush( Brush::Acid );
+    ui->radioButton_air->setBrush( Brush::Air );
+    ui->radioButton_earth->setBrush( Brush::Earth );
+    ui->radioButton_fire->setBrush( Brush::Fire );
+    ui->radioButton_oil->setBrush( Brush::Oil );
+    ui->radioButton_plasma->setBrush( Brush::Plasma );
+    ui->radioButton_rock->setBrush( Brush::Rock );
+    ui->radioButton_sand->setBrush( Brush::Sand );
+    ui->radioButton_water->setBrush( Brush::Water );
+
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(about()));
 
     connect(ui->radioButton_acid,   SIGNAL(released()), this, SLOT(onRadioChanged()));
@@ -53,10 +63,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(ui->clearButton, SIGNAL(released()), ui->gamewidget, SLOT(clear()));
 
-    // Enforce the "Earth" brush.
-    ui->radioButton_rock->setChecked(true);
+    // Enforce the default brush "Earth"
+    ui->radioButton_earth->setChecked(false);
     ui->radioButton_earth->setChecked(true);
-    ui->gamewidget->setCurrentBrush(QLatin1String("earth"));
+    ui->gamewidget->setCurrentBrush(Brush::Earth);
 }
 
 MainWindow::~MainWindow()
@@ -74,11 +84,10 @@ void MainWindow::about()
 
 void MainWindow::onRadioChanged()
 {
-    QRadioButton *radio = static_cast<QRadioButton *>(sender());
+    MaterialRadioButton *radio = static_cast<MaterialRadioButton *>(sender());
     if (radio && radio->isChecked()) {
-        QString name = radio->objectName();
-        name.remove(0, 12); // 12 chars in "radioButton_"
-        ui->gamewidget->setCurrentBrush(name);
+        Brush brush = radio->brush();
+        ui->gamewidget->setCurrentBrush(brush);
     }
 }
 

@@ -38,7 +38,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_rock">
+          <widget class="MaterialRadioButton" name="radioButton_rock">
            <property name="text">
             <string>Rock</string>
            </property>
@@ -48,7 +48,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_sand">
+          <widget class="MaterialRadioButton" name="radioButton_sand">
            <property name="text">
             <string>Sand</string>
            </property>
@@ -58,21 +58,21 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_oil">
+          <widget class="MaterialRadioButton" name="radioButton_oil">
            <property name="text">
             <string>Oil</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_acid">
+          <widget class="MaterialRadioButton" name="radioButton_acid">
            <property name="text">
             <string>Acid</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_plasma">
+          <widget class="MaterialRadioButton" name="radioButton_plasma">
            <property name="text">
             <string>Plasma</string>
            </property>
@@ -86,28 +86,28 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_fire">
+          <widget class="MaterialRadioButton" name="radioButton_fire">
            <property name="text">
             <string>Fire</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_water">
+          <widget class="MaterialRadioButton" name="radioButton_water">
            <property name="text">
             <string>Water</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_air">
+          <widget class="MaterialRadioButton" name="radioButton_air">
            <property name="text">
             <string>Air</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_earth">
+          <widget class="MaterialRadioButton" name="radioButton_earth">
            <property name="text">
             <string>Earth</string>
            </property>
@@ -163,6 +163,11 @@
    <extends>QWidget</extends>
    <header>GameWidget</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MaterialRadioButton</class>
+   <extends>QRadioButton</extends>
+   <header>MaterialRadioButton</header>
   </customwidget>
  </customwidgets>
  <resources/>
