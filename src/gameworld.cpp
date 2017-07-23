@@ -27,9 +27,10 @@
 #include <QtCore/QDebug>
 
 /*! \class GameWorld
- *  \brief This class holds the game's world.
+ *  \brief Th class GameWorld holds the scene of the game.
  *
- * It hides the world's buffers and internals.
+ * It hides the scene's buffers.
+ * It hides also some internal variables that speed up the memory accesses.
  *
  * \subsection sec-coord-sys Coordinate System
  *

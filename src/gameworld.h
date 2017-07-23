@@ -25,7 +25,7 @@
 #ifndef GAME_WORLD_H
 #define GAME_WORLD_H
 
-#include <gamematerial.h>
+#include "gamematerial.h"
 
 #include <QtCore/QObject>
 
