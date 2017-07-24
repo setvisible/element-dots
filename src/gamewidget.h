@@ -33,14 +33,12 @@ class GameEngine;
 class GameWidget : public QWidget
 {
     Q_OBJECT
-
-
 public:
     explicit GameWidget(QWidget *parent = 0);
     ~GameWidget();
 
-    Brush currentBrush() const;
-    void setCurrentBrush(const Brush brush);
+    Material currentMaterial() const;
+    void setCurrentMaterial(const Material mat);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -53,16 +51,9 @@ Q_SIGNALS:
 public Q_SLOTS:
     void clear();
 
-
 private:
     GameEngine* m_engine;
-
     QColor m_gridColor;
-
-    bool m_isSpawningDots; // ddfdfdf
-    int m_mousePosX; // ddfdfdf
-    int m_mousePosY; // ddfdfdf
-    Brush m_currentBrush; // ddfdfdf
 
     void paintGrid(QPainter &p);
     void paintUniverse(QPainter &p);

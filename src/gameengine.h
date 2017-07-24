@@ -38,7 +38,7 @@ class GameEngine : public QObject
     struct Fountain {
         int x;
         int y;
-        Brush type;
+        Material type;
     };
 
 public:
@@ -51,8 +51,8 @@ Q_SIGNALS:
 public Q_SLOTS:
     void clear();
 
-    Brush currentBrush() const;
-    void setCurrentBrush(const Brush brush);
+    Material currentMaterial() const;
+    void setCurrentMaterial(const Material material);
 
     GameWorld* world() const;
 
@@ -70,19 +70,19 @@ private:
     bool m_isMousePressed;
     int m_mousePosX;
     int m_mousePosY;
-    Brush m_currentBrush;
+    Material m_currentMaterial;
     QList<Fountain> m_fountains;
 
 
-    inline void boom(const int x, const int y, const Brush brush) ;
-    inline void liquid(const int x, const int y, const Brush brush);
+    inline void boom(const int x, const int y, const Material mat);
+    inline void liquid(const int x, const int y, const Material mat);
 
-    inline void addDot(const int x, const int y, const Brush brush);
+    inline void addDot(const int x, const int y, const Material mat);
     inline void moveDot(const int x, const int y, const int nx, const int ny,
-                        const Brush brush, const Brush nbrush);
+                        const Material mat, const Material nMat);
     inline void killDot(const int x, const int y);
 
-    inline void spawnDot(const int x, const int y, const Brush brush);
+    inline void spawnDot(const int x, const int y, const Material mat);
     inline void spawnMouse();
 
 };

@@ -71,7 +71,7 @@ MaterialRadioButton::~MaterialRadioButton()
 
 void MaterialRadioButton::init()
 {
-    setMaterial(Brush::Air);
+    setMaterial(Material::Air);
 
     imageRadioButton = QImage(radiobutton_xpm);
     imageRightRadioButton = QImage(radiobutton_right_xpm);
@@ -91,12 +91,12 @@ void MaterialRadioButton::init()
     this->setIconSize(QSize(20, 20));
 }
 
-Brush MaterialRadioButton::material() const
+Material MaterialRadioButton::material() const
 {
     return m_material;
 }
 
-void MaterialRadioButton::setMaterial(const Brush material)
+void MaterialRadioButton::setMaterial(const Material material)
 {
     m_material = material;
 }
@@ -153,8 +153,8 @@ void MaterialRadioButton::paintEvent(QPaintEvent *)
     /* Draw the icon */
     {
         p.save();
-        const QColor color0 = brushColor(m_material, ColorVariation::Color0);
-        const QColor color1 = brushColor(m_material, ColorVariation::Color1);
+        const QColor color0 = materialColor(m_material, ColorVariation::Color0);
+        const QColor color1 = materialColor(m_material, ColorVariation::Color1);
         imageRadioButton.setColor(1, color0.rgba());
         imageRadioButton.setColor(2, color1.rgba());
         imageRightRadioButton.setColor(1, color0.rgba());

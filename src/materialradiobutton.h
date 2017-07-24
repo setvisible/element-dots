@@ -39,15 +39,15 @@ public:
     explicit MaterialRadioButton(const QString &text, QWidget *parent = Q_NULLPTR);
     ~MaterialRadioButton();
 
-    Brush material() const;
-    void setMaterial(const Brush material);
+    Material material() const;
+    void setMaterial(const Material material);
 
 protected:
     bool hitButton(const QPoint &) const Q_DECL_OVERRIDE;
     void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE;
 
 private:
-    Brush m_material;
+    Material m_material;
     QImage imageRadioButton;
     QImage imageRightRadioButton;
 

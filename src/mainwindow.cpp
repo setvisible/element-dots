@@ -39,15 +39,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setWindowTitle(QString("%0 v%1").arg(STR_APPLICATION_NAME).arg(STR_APPLICATION_VERSION));
     this->setWindowIcon(QIcon(":/res/logo/Webalys-Kameleon.pics-Chessboard.ico"));
 
-    ui->radioButton_acid->setBrush( Brush::Acid );
-    ui->radioButton_air->setBrush( Brush::Air );
-    ui->radioButton_earth->setBrush( Brush::Earth );
-    ui->radioButton_fire->setBrush( Brush::Fire );
-    ui->radioButton_oil->setBrush( Brush::Oil );
-    ui->radioButton_plasma->setBrush( Brush::Plasma );
-    ui->radioButton_rock->setBrush( Brush::Rock );
-    ui->radioButton_sand->setBrush( Brush::Sand );
-    ui->radioButton_water->setBrush( Brush::Water );
+    ui->radioButton_acid->setMaterial( Material::Acid );
+    ui->radioButton_air->setMaterial( Material::Air );
+    ui->radioButton_earth->setMaterial( Material::Earth );
+    ui->radioButton_fire->setMaterial( Material::Fire );
+    ui->radioButton_oil->setMaterial( Material::Oil );
+    ui->radioButton_plasma->setMaterial( Material::Plasma );
+    ui->radioButton_rock->setMaterial( Material::Rock );
+    ui->radioButton_sand->setMaterial( Material::Sand );
+    ui->radioButton_water->setMaterial( Material::Water );
 
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(about()));
 
@@ -63,10 +63,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(ui->clearButton, SIGNAL(released()), ui->gamewidget, SLOT(clear()));
 
-    // Enforce the default brush "Earth"
+    // Enforce the default "Earth" material
     ui->radioButton_earth->setChecked(false);
     ui->radioButton_earth->setChecked(true);
-    ui->gamewidget->setCurrentBrush(Brush::Earth);
+    ui->gamewidget->setCurrentMaterial(Material::Earth);
 }
 
 MainWindow::~MainWindow()
@@ -86,8 +86,8 @@ void MainWindow::onRadioChanged()
 {
     MaterialRadioButton *radio = static_cast<MaterialRadioButton *>(sender());
     if (radio && radio->isChecked()) {
-        Brush brush = radio->brush();
-        ui->gamewidget->setCurrentBrush(brush);
+        Material mat = radio->material();
+        ui->gamewidget->setCurrentMaterial(mat);
     }
 }
 

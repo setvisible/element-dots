@@ -53,14 +53,14 @@ void GameWidget::clear()
 
 /***********************************************************************************
  ***********************************************************************************/
-Brush GameWidget::currentBrush() const
+Material GameWidget::currentMaterial() const
 {
-    return m_engine->currentBrush();
+    return m_engine->currentMaterial();
 }
 
-void GameWidget::setCurrentBrush(const Brush brush)
+void GameWidget::setCurrentMaterial(const Material mat)
 {
-    m_engine->setCurrentBrush(brush);
+    m_engine->setCurrentMaterial(mat);
 }
 
 
@@ -151,19 +151,19 @@ void GameWidget::paintUniverse(QPainter &p)
     for (int y = world->height(); y >= 0; y--) {
         for (int x = 0; x < world->width(); x++) {
 
-            Brush brush = world->dot(x,y);
+            Material mat = world->dot(x,y);
             ColorVariation c = world->colorVariation(x,y);
 
             /// \todo Draw only new dots ?
 
-            Q_ASSERT(brush >= Brush::Acid && brush <= Brush::Water);
+            Q_ASSERT(mat >= Material::Acid && mat <= Material::Water);
 
-            if (brush != Brush::Air) {
+            if (mat != Material::Air) {
                 qreal left = (qreal)(cellWidth*x);
                 qreal top  = (qreal)(cellHeight*y);
                 QRectF r(left, top, (qreal)cellWidth, (qreal)cellHeight);
 
-                QColor color1 = brushColor(brush, c);
+                QColor color1 = materialColor(mat, c);
                 p.fillRect(r, QBrush(color1));
             }
 

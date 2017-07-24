@@ -38,7 +38,7 @@ enum class ColorVariation {
     Color1 = 1
 };
 
-enum class Brush {
+enum class Material {
     Acid     = 0,
     Air      = 1,
     Earth    = 2,
@@ -51,16 +51,16 @@ enum class Brush {
     Water    = 9
 };
 
-Q_DECLARE_METATYPE(Brush)
+Q_DECLARE_METATYPE(Material)
 
-QString toString(const Brush brush);
-Brush toBrush(const QString &name);
+QString toString(const Material material);
+Material toMaterial(const QString &name);
 
-QString brushColor(const Brush brush, const ColorVariation color);
-double brushRandomBreakValue(const Brush brush);
+QString materialColor(const Material material, const ColorVariation color);
+double materialRandomBreakValue(const Material material);
 
 #ifdef QT_DEBUG
-QDebug operator<<(QDebug dbg, const Brush &brush);
+QDebug operator<<(QDebug dbg, const Material &material);
 #endif
 
 

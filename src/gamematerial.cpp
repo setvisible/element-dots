@@ -24,20 +24,20 @@
 
 #include "gamematerial.h"
 
-QString toString(const Brush brush)
+QString toString(const Material material)
 {
     QString str;
-    switch (brush) {
-    case Brush::Acid:   str = QLatin1String("Brush::Acid"); break;
-    case Brush::Air:    str = QLatin1String("Brush::Air"); break;
-    case Brush::Earth:  str = QLatin1String("Brush::Earth"); break;
-    case Brush::Fire:   str = QLatin1String("Brush::Fire"); break;
-    case Brush::Oil:    str = QLatin1String("Brush::Oil"); break;
-    case Brush::Plasma: str = QLatin1String("Brush::Plasma"); break;
-    case Brush::Rock:   str = QLatin1String("Brush::Rock"); break;
-    case Brush::Sand:   str = QLatin1String("Brush::Sand"); break;
-    case Brush::Steam:  str = QLatin1String("Brush::Steam"); break;
-    case Brush::Water:  str = QLatin1String("Brush::Water"); break;
+    switch (material) {
+    case Material::Acid:   str = QLatin1String("Material::Acid"); break;
+    case Material::Air:    str = QLatin1String("Material::Air"); break;
+    case Material::Earth:  str = QLatin1String("Material::Earth"); break;
+    case Material::Fire:   str = QLatin1String("Material::Fire"); break;
+    case Material::Oil:    str = QLatin1String("Material::Oil"); break;
+    case Material::Plasma: str = QLatin1String("Material::Plasma"); break;
+    case Material::Rock:   str = QLatin1String("Material::Rock"); break;
+    case Material::Sand:   str = QLatin1String("Material::Sand"); break;
+    case Material::Steam:  str = QLatin1String("Material::Steam"); break;
+    case Material::Water:  str = QLatin1String("Material::Water"); break;
     default:
         Q_UNREACHABLE();
         break;
@@ -45,37 +45,37 @@ QString toString(const Brush brush)
     return str;
 }
 
-Brush toBrush(const QString &name)
+Material toMaterial(const QString &name)
 {
-    if (      name == QLatin1String("acid"   ) ) { return Brush::Acid   ; }
-    else if ( name == QLatin1String("air"    ) ) { return Brush::Air    ; }
-    else if ( name == QLatin1String("earth"  ) ) { return Brush::Earth  ; }
-    else if ( name == QLatin1String("fire"   ) ) { return Brush::Fire   ; }
-    else if ( name == QLatin1String("oil"    ) ) { return Brush::Oil    ; }
-    else if ( name == QLatin1String("plasma" ) ) { return Brush::Plasma ; }
-    else if ( name == QLatin1String("rock"   ) ) { return Brush::Rock   ; }
-    else if ( name == QLatin1String("sand"   ) ) { return Brush::Sand   ; }
-    else if ( name == QLatin1String("steam"  ) ) { return Brush::Steam  ; }
-    else if ( name == QLatin1String("water"  ) ) { return Brush::Water  ; }
+    if (      name == QLatin1String("acid"   ) ) { return Material::Acid   ; }
+    else if ( name == QLatin1String("air"    ) ) { return Material::Air    ; }
+    else if ( name == QLatin1String("earth"  ) ) { return Material::Earth  ; }
+    else if ( name == QLatin1String("fire"   ) ) { return Material::Fire   ; }
+    else if ( name == QLatin1String("oil"    ) ) { return Material::Oil    ; }
+    else if ( name == QLatin1String("plasma" ) ) { return Material::Plasma ; }
+    else if ( name == QLatin1String("rock"   ) ) { return Material::Rock   ; }
+    else if ( name == QLatin1String("sand"   ) ) { return Material::Sand   ; }
+    else if ( name == QLatin1String("steam"  ) ) { return Material::Steam  ; }
+    else if ( name == QLatin1String("water"  ) ) { return Material::Water  ; }
     else {
         Q_UNREACHABLE();
     }
-    return Brush::Water;
+    return Material::Water;
 }
 
-QString brushColor(const Brush brush, const ColorVariation color)
+QString materialColor(const Material material, const ColorVariation color)
 {
-    switch (brush) {
-    case Brush::Acid:   return (color==ColorVariation::Color0) ? QLatin1String("#f1f") : QLatin1String("#e4e"); break;
-    case Brush::Air:    return (color==ColorVariation::Color0) ? QLatin1String("#fff") : QLatin1String("#fff"); break;
-    case Brush::Earth:  return (color==ColorVariation::Color0) ? QLatin1String("#0b0") : QLatin1String("#2d2"); break;
-    case Brush::Fire:   return (color==ColorVariation::Color0) ? QLatin1String("#c41") : QLatin1String("#f60"); break;
-    case Brush::Oil:    return (color==ColorVariation::Color0) ? QLatin1String("#212") : QLatin1String("#111"); break;
-    case Brush::Plasma: return (color==ColorVariation::Color0) ? QLatin1String("#f3a") : QLatin1String("#ee0"); break;
-    case Brush::Rock:   return (color==ColorVariation::Color0) ? QLatin1String("#777") : QLatin1String("#666"); break;
-    case Brush::Sand:   return (color==ColorVariation::Color0) ? QLatin1String("#b73") : QLatin1String("#a82"); break;
-    case Brush::Steam:  return (color==ColorVariation::Color0) ? QLatin1String("#bbd") : QLatin1String("#ccc"); break;
-    case Brush::Water:  return (color==ColorVariation::Color0) ? QLatin1String("#12d") : QLatin1String("#12f"); break;
+    switch (material) {
+    case Material::Acid:   return (color==ColorVariation::Color0) ? QLatin1String("#f1f") : QLatin1String("#e4e"); break;
+    case Material::Air:    return (color==ColorVariation::Color0) ? QLatin1String("#fff") : QLatin1String("#fff"); break;
+    case Material::Earth:  return (color==ColorVariation::Color0) ? QLatin1String("#0b0") : QLatin1String("#2d2"); break;
+    case Material::Fire:   return (color==ColorVariation::Color0) ? QLatin1String("#c41") : QLatin1String("#f60"); break;
+    case Material::Oil:    return (color==ColorVariation::Color0) ? QLatin1String("#212") : QLatin1String("#111"); break;
+    case Material::Plasma: return (color==ColorVariation::Color0) ? QLatin1String("#f3a") : QLatin1String("#ee0"); break;
+    case Material::Rock:   return (color==ColorVariation::Color0) ? QLatin1String("#777") : QLatin1String("#666"); break;
+    case Material::Sand:   return (color==ColorVariation::Color0) ? QLatin1String("#b73") : QLatin1String("#a82"); break;
+    case Material::Steam:  return (color==ColorVariation::Color0) ? QLatin1String("#bbd") : QLatin1String("#ccc"); break;
+    case Material::Water:  return (color==ColorVariation::Color0) ? QLatin1String("#12d") : QLatin1String("#12f"); break;
     default:
         Q_UNREACHABLE();
         break;
@@ -83,19 +83,19 @@ QString brushColor(const Brush brush, const ColorVariation color)
     return QLatin1String("#f00");
 }
 
-double brushRandomBreakValue(const Brush brush)
+double materialRandomBreakValue(const Material material)
 {
-    switch (brush) {
-    case Brush::Acid:   return 0.9; break;
-    case Brush::Air:    return 0.0; break;
-    case Brush::Earth:  return 0.5; break;
-    case Brush::Fire:   return 0.5; break;
-    case Brush::Oil:    return 0.7; break;
-    case Brush::Plasma: return 0.7; break;
-    case Brush::Rock:   return 0.5; break;
-    case Brush::Sand:   return 0.6; break;
-    case Brush::Steam:  return 0.5; break;
-    case Brush::Water:  return 0.5; break;
+    switch (material) {
+    case Material::Acid:   return 0.9; break;
+    case Material::Air:    return 0.0; break;
+    case Material::Earth:  return 0.5; break;
+    case Material::Fire:   return 0.5; break;
+    case Material::Oil:    return 0.7; break;
+    case Material::Plasma: return 0.7; break;
+    case Material::Rock:   return 0.5; break;
+    case Material::Sand:   return 0.6; break;
+    case Material::Steam:  return 0.5; break;
+    case Material::Water:  return 0.5; break;
     default:
         Q_UNREACHABLE();
         break;
@@ -103,16 +103,11 @@ double brushRandomBreakValue(const Brush brush)
     return 0.0;
 }
 
-
-
-
 #ifdef QT_DEBUG
-QDebug operator<<(QDebug dbg, const Brush &brush)
+QDebug operator<<(QDebug dbg, const Material &material)
 {
-    dbg.nospace() << toString(brush);
+    dbg.nospace() << toString(material);
     return dbg.maybeSpace();
 }
 #endif
-
-
 

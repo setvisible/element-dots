@@ -69,7 +69,7 @@ void GameWorld::clear()
     m_world = new char[m_height * m_width];
     m_worldColor = new bool[m_height * m_width];
 
-    memset(m_world, (char)Brush::Air, sizeof(char) * m_height * m_width);
+    memset(m_world, (char)Material::Air, sizeof(char) * m_height * m_width);
     memset(m_worldColor, false, sizeof(bool) * m_height * m_width);
 
     emit changed();
@@ -100,21 +100,21 @@ void GameWorld::setSize(const int width, const int height)
 
 /***********************************************************************************
  ***********************************************************************************/
-void GameWorld::setDot(const int x, const int y, const Brush brush)
+void GameWorld::setDot(const int x, const int y, const Material material)
 {
     if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
-        m_world[ y * m_width + x ] = (char)brush;
+        m_world[ y * m_width + x ] = (char)material;
     } else {
         qWarning() << Q_FUNC_INFO << "Warning: out of bound" << x << y;
     }
 }
 
-Brush GameWorld::dot(const int x, const int y) const
+Material GameWorld::dot(const int x, const int y) const
 {
     if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
-        return (Brush)m_world[ y * m_width + x ];
+        return (Material)m_world[ y * m_width + x ];
     }
-    return Brush::Air;
+    return Material::Air;
 }
 
 /***********************************************************************************

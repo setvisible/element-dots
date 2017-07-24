@@ -46,14 +46,14 @@ public Q_SLOTS:
     int height() const;
     void setSize(const int width, const int height);
 
-    Brush dot(const int x, const int y) const;
-    void setDot(const int x, const int y, const Brush brush);
+    Material dot(const int x, const int y) const;
+    void setDot(const int x, const int y, const Material material);
 
     ColorVariation colorVariation(const int x, const int y) const;
     void setColorVariation(const int x, const int y, const ColorVariation color);
 
 private:
-    char* m_world;       /* Brush has 10 values -> stored as char */
+    char* m_world;       /* Material has 10 values -> stored as char */
     bool* m_worldColor;  /* ColorVariation has 2 variants -> stored as boolean */
     int m_width;
     int m_height;
