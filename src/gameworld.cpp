@@ -49,8 +49,8 @@
 GameWorld::GameWorld(QObject *parent) : QObject(parent)
   , m_world(Q_NULLPTR)
   , m_worldColor(Q_NULLPTR)
-  , m_width(100)
-  , m_height(100)
+  , m_width(16)
+  , m_height(16)
 {
     clear();
 }
