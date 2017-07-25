@@ -26,6 +26,7 @@
 
 #include "gameengine.h"
 #include "gameworld.h"
+#include "utils.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QMouseEvent>
@@ -64,10 +65,8 @@ void GameWidget::setCurrentMaterial(const Material mat)
 }
 
 
-
 /***********************************************************************************
  ***********************************************************************************/
-
 void GameWidget::mousePressEvent(QMouseEvent *event)
 {
     Q_ASSERT(m_engine);
@@ -146,7 +145,7 @@ void GameWidget::paintGrid(QPainter &p)
 void GameWidget::paintUniverse(QPainter &p)
 {
     Q_ASSERT(m_engine);
-    const GameWorld* world = m_engine->world();
+    GameWorld* world = m_engine->world();
     if (!world) return;
 
     const qreal cellWidth = (qreal)width()/world->width();
@@ -158,10 +157,17 @@ void GameWidget::paintUniverse(QPainter &p)
             const Material mat = world->dot(x,y);
             const ColorVariation c = world->colorVariation(x,y);
 
-            /// \todo Draw only new dots ?
+            /* Permute colors to rendering liquid effect */
+            const Material mat1 = world->dot(x,y-1);
+            const ColorVariation c1 = world->colorVariation(x,y-1);
+            if (isLiquid(mat) && mat == mat1 && random()<0.1) {
+                if (c1 != c) {
+                    world->setColorVariation(x,y,c1);
+                    world->setColorVariation(x,y-1,c);
+                }
+            }
 
-            Q_ASSERT(mat >= Material::Acid && mat <= Material::Water);
-
+            /* Draw the dot */
             if (mat != Material::Air) {
                 const int left = qFloor(cellWidth * x);
                 const int top  = qFloor(cellHeight * y);

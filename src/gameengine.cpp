@@ -71,12 +71,6 @@
  * \sa GameWidget, WorkerThread
  */
 
-
-static bool isSolid(const Material material)
-{
-    return (material==Material::Earth || material==Material::Plasma || material==Material::Rock);
-}
-
 GameEngine::GameEngine(QObject *parent) : QObject(parent)
   , m_world(new GameWorld(this))
   , m_updateTimer(new QTimer(this))
@@ -449,13 +443,8 @@ inline void GameEngine::liquid(const int x, const int y, const Material mat)
 inline void GameEngine::addDot(const int x, const int y, const Material mat)
 {
     m_world->setDot(x,y,mat);
-
-    ColorVariation c = (random() < materialRandomBreakValue(mat) )
-            ? ColorVariation::Color0
-            : ColorVariation::Color1;
-
+    ColorVariation c = computeRandomColor(mat);
     m_world->setColorVariation(x,y,c);
-
 }
 
 inline void GameEngine::moveDot(const int x, const int y,

@@ -23,6 +23,7 @@
  */
 
 #include "gamematerial.h"
+#include "utils.h"
 
 QString toString(const Material material)
 {
@@ -83,7 +84,7 @@ QString materialColor(const Material material, const ColorVariation color)
     return QLatin1String("#f00");
 }
 
-double materialRandomBreakValue(const Material material)
+static inline double materialRandomBreakValue(const Material material)
 {
     switch (material) {
     case Material::Acid:   return 0.9; break;
@@ -102,6 +103,24 @@ double materialRandomBreakValue(const Material material)
     }
     return 0.0;
 }
+
+ColorVariation computeRandomColor(const Material material)
+{
+    return (random() < materialRandomBreakValue(material) )
+            ? ColorVariation::Color0
+            : ColorVariation::Color1;
+}
+
+bool isSolid(const Material material)
+{
+    return (material==Material::Earth || material==Material::Plasma || material==Material::Rock);
+}
+
+bool isLiquid(const Material material)
+{
+    return (material==Material::Acid || material==Material::Oil || material==Material::Water);
+}
+
 
 #ifdef QT_DEBUG
 QDebug operator<<(QDebug dbg, const Material &material)

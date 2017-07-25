@@ -57,7 +57,10 @@ QString toString(const Material material);
 Material toMaterial(const QString &name);
 
 QString materialColor(const Material material, const ColorVariation color);
-double materialRandomBreakValue(const Material material);
+ColorVariation computeRandomColor(const Material material);
+
+bool isSolid(const Material material);
+bool isLiquid(const Material material);
 
 #ifdef QT_DEBUG
 QDebug operator<<(QDebug dbg, const Material &material);
