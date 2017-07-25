@@ -32,8 +32,18 @@
 #include <QtCore/QTimer>
 #include <QtCore/qmath.h>
 
-#define C_WORLD_WIDTH_IN_DOTS   150
-#define C_WORLD_HEIGHT_IN_DOTS  150
+/*
+ * Ideally:
+ * The size of the world should be a multiple of 16.
+ * Indeed, a dot is a 4-bit number (from 0x00 to 0x0F = 16 values).
+ *
+ * Then,
+ * - 1 integer on a 32-bit machine contains 8 dots.
+ * - 1 integer on a 64-bit machine contains 16 dots.
+ *
+ */
+#define C_WORLD_WIDTH_IN_DOTS   160
+#define C_WORLD_HEIGHT_IN_DOTS  160
 
 #define C_EXPLOSION_BLAST_WIDTH_IN_DOTS     3
 #define C_EXPLOSION_BLAST_HEIGHT_IN_DOTS   20
@@ -181,30 +191,30 @@ void GameEngine::updateGame()
 
                 if (dbc == Material::Air) {
                     if (random()<0.9)
-                        moveDot(x,y,x,y+1,Material::Air,d);
+                        moveDot(x,y,x,y+1,Material::Air, Material::Acid);
                 } else if (dbc == Material::Fire) {
                     moveDot(x,y,x,y+1,Material::Plasma, Material::Acid);
                 } else if (dbc == Material::Water) {
                     if (random()<0.7)
-                        moveDot(x,y,x,y+1,Material::Water,d);
+                        moveDot(x,y,x,y+1,Material::Water, Material::Acid);
                 } else if (dbc == Material::Sand) {
                     if (random()<0.05)
                         killDot(x,y);
                 } else if (dbc == Material::Rock
                            || m_world->dot(x-1,y) == Material::Rock
                            || m_world->dot(x+1,y) == Material::Rock) {
-                    liquid(x,y,d);
-                } else if (dbc != Material::Air && dbc!=d && random()<0.04) {
-                    moveDot(x,y,x,y+1,Material::Air,d);
-                } else if (random()<0.05 && m_world->dot(x+1,y)!=d) {
-                    moveDot(x,y,x+1,y,Material::Air,d);
-                } else if (random()<0.05 && m_world->dot(x-1,y)!=d) {
-                    moveDot(x,y,x-1,y,Material::Air,d);
+                    liquid(x,y,Material::Acid);
+                } else if (dbc != Material::Air && dbc != Material::Acid && random()<0.04) {
+                    moveDot(x,y,x,y+1,Material::Air,Material::Acid);
+                } else if (random()<0.05 && m_world->dot(x+1,y) != Material::Acid) {
+                    moveDot(x,y,x+1,y,Material::Air, Material::Acid);
+                } else if (random()<0.05 && m_world->dot(x-1,y) != Material::Acid) {
+                    moveDot(x,y,x-1,y,Material::Air, Material::Acid);
                 } else if (dbc == Material::Oil) {
                     if (random()<0.005)
                         boom(x,y,Material::Fire);
                 } else if (dbc != Material::Air)  {
-                    liquid(x,y,d);
+                    liquid(x,y,Material::Acid);
                 }
 
             }
@@ -212,32 +222,34 @@ void GameEngine::updateGame()
             case Material::Fire:
             {
                 if (dbc == Material::Air && random()<0.7) {
-                    moveDot(x,y,x,y+1,Material::Air,d);
+                    moveDot(x,y,x,y+1,Material::Air,Material::Fire);
                 } else if (dtc == Material::Rock) {
                     killDot(x,y);
                 } else if ((dbc == Material::Oil || dbc == Material::Acid) && random()<0.5) {
-                    addDot(x+1,y-1,d);
+                    addDot(x+1,y-1,Material::Fire);
                 } else if ((dbc == Material::Oil || dbc == Material::Acid) && random()<0.5) {
-                    addDot(x-1,y-1,d);
+                    addDot(x-1,y-1,Material::Fire);
                 } else if (dbc == Material::Oil) {
                     if (random()<0.002)
                         killDot(x,y+1);
-                    addDot(x,y-10-(20*random()),d);
-                    addDot(x,y-1-(10*random()),d);
+                    addDot(x,y-10-(20*random()),Material::Fire);
+                    addDot(x,y-1-(10*random()),Material::Fire);
                 } else if (dbc == Material::Acid) {
                     if (random()<0.1)
                         boom(x,y+1,Material::Fire);
                 } else if (dbc == Material::Rock && random()<0.03) {
                     killDot(x,y);
                 } else if ((dbc == Material::Air || dbc == Material::Earth) && random()<0.02) {
-                    addDot(x+1,y-1,d);
+                    addDot(x+1,y-1,Material::Fire);
                 } else if ((dbc == Material::Air || dbc == Material::Earth) && random()<0.02) {
-                    addDot(x-1,y-1,d);
+                    addDot(x-1,y-1,Material::Fire);
                 } else if (dbc == Material::Earth && random()<0.004) {
                     killDot(x,y+1);
-                } else if (dbc==d && random()<0.4) {
-                    moveDot(x,y,x,y-2,Material::Air,d);
-                } else if (dtc==d && m_world->dot(x,y-2)==d && m_world->dot(x,y-3)==d) {
+                } else if (dbc == Material::Fire && random()<0.4) {
+                    moveDot(x,y,x,y-2,Material::Air,Material::Fire);
+                } else if (dtc == Material::Fire
+                           && m_world->dot(x,y-2) == Material::Fire
+                           && m_world->dot(x,y-3) == Material::Fire) {
                     killDot(x,y);
                 }
             }
@@ -248,13 +260,13 @@ void GameEngine::updateGame()
                     moveDot(x,y,x,y+1,Material::Fire,Material::Oil);
                 } else if (dbc == Material::Air) {
                     if (random()<0.7)
-                        moveDot(x,y,x,y+1,Material::Air,d);
+                        moveDot(x,y,x,y+1,Material::Air,Material::Oil);
                 } else if (dbc == Material::Fire && random()<0.1) {
                     addDot(x,y,Material::Fire);
                 } else if (dbc == Material::Air && random()<0.05) {
-                    addDot(x,y+1,d);
+                    addDot(x,y+1,Material::Oil);
                 } else if (dbc != Material::Air) {
-                    liquid(x,y,d);
+                    liquid(x,y,Material::Oil);
                 }
             }
                 break;
@@ -268,55 +280,55 @@ void GameEngine::updateGame()
             {
                 if (dbc == Material::Air) {
                     if (random()<0.9)
-                        moveDot(x,y,x,y+1,Material::Air,d);
+                        moveDot(x,y,x,y+1,Material::Air,Material::Sand);
                 } else if (dbc == Material::Water) {
                     if (random()<0.6)
-                        moveDot(x,y,x,y+1,Material::Water,d);
+                        moveDot(x,y,x,y+1,Material::Water,Material::Sand);
                 } else if (dbc == Material::Acid) {
                     if (random()<0.1)
-                        moveDot(x,y,x,y+1,Material::Acid,d);
+                        moveDot(x,y,x,y+1,Material::Acid,Material::Sand);
                 } else if (dbc == Material::Oil) {
                     if (random()<0.3)
-                        moveDot(x,y,x,y+1,Material::Oil,d);
+                        moveDot(x,y,x,y+1,Material::Oil,Material::Sand);
                 } else if (dbc == Material::Fire) {
                     killDot(x,y+1);
 
                 } else if (m_world->dot(x-1,y) == Material::Air && random()<0.01) {
-                    moveDot(x,y,x-1,y,Material::Air,d);
+                    moveDot(x,y,x-1,y,Material::Air,Material::Sand);
                 } else if (m_world->dot(x+1,y) == Material::Air && random()<0.01) {
-                    moveDot(x,y,x+1,y,Material::Air,d);
+                    moveDot(x,y,x+1,y,Material::Air,Material::Sand);
 
                 } else if (dbc != Material::Air
                            && m_world->dot(x+1,y+1) == Material::Air
                            && m_world->dot(x+1,y) == Material::Air
                            && random()<0.3) {
-                    moveDot(x,y,x+1,y,Material::Air,d);
+                    moveDot(x,y,x+1,y,Material::Air,Material::Sand);
 
                 } else if (dbc != Material::Air
                            && m_world->dot(x+1,y) == Material::Water
                            && random()<0.3) {
-                    moveDot(x,y,x+1,y,Material::Water,d);
+                    moveDot(x,y,x+1,y,Material::Water,Material::Sand);
 
                 } else if (dbc != Material::Air
                            && m_world->dot(x-1,y) == Material::Water
                            && random()<0.3) {
-                    moveDot(x,y,x-1,y,Material::Water,d);
+                    moveDot(x,y,x-1,y,Material::Water,Material::Sand);
 
                 } else if (dbc != Material::Air
                            && m_world->dot(x+1,y) == Material::Oil
                            && random()<0.3) {
-                    moveDot(x,y,x+1,y,Material::Oil,d);
+                    moveDot(x,y,x+1,y,Material::Oil,Material::Sand);
 
                 } else if (dbc != Material::Air
                            && m_world->dot(x-1,y) == Material::Oil
                            && random()<0.3) {
-                    moveDot(x,y,x-1,y,Material::Oil,d);
+                    moveDot(x,y,x-1,y,Material::Oil,Material::Sand);
 
                 } else if (dbc != Material::Air
                            && m_world->dot(x-1,y) == Material::Air
                            && m_world->dot(x-1,y+1) == Material::Air
                            && random()<0.3) {
-                    moveDot(x,y,x-1,y,Material::Air,d);
+                    moveDot(x,y,x-1,y,Material::Air,Material::Sand);
                 }
             }
 
@@ -325,27 +337,27 @@ void GameEngine::updateGame()
             {
                 if ( dtc != Material::Earth
                      && dtc != Material::Rock
-                     && dtc != d && random()<0.5) {
-                    moveDot(x,y,x,y-1,dtc,d);
+                     && dtc != Material::Steam && random()<0.5) {
+                    moveDot(x,y,x,y-1,dtc,Material::Steam);
                 } else if (random()<0.3
                            && dtc != Material::Air
                            && m_world->dot(x-1,y) == Material::Air
-                           && m_world->dot(x-1,y+1)!=d) {
+                           && m_world->dot(x-1,y+1) != Material::Steam) {
                     moveDot(x,y,x-1,y,Material::Air, Material::Steam);
                 } else if (random()<0.3
                            && dtc != Material::Air
                            && m_world->dot(x+1,y) == Material::Air
-                           && m_world->dot(x+1,y+1)!=d) {
+                           && m_world->dot(x+1,y+1) != Material::Steam) {
                     moveDot(x,y,x+1,y,Material::Air, Material::Steam);
                 } else if (random()<0.3
                            && dtc != Material::Air
                            && m_world->dot(x+2,y) == Material::Air
-                           && m_world->dot(x+2,y+1)!=d) {
+                           && m_world->dot(x+2,y+1) != Material::Steam) {
                     moveDot(x,y,x+2,y,Material::Air, Material::Steam);
                 } else if (random()<0.3
                            && dtc != Material::Air
                            && m_world->dot(x-2,y) == Material::Air
-                           && m_world->dot(x-2,y+1)!=d) {
+                           && m_world->dot(x-2,y+1) != Material::Steam) {
                     moveDot(x,y,x-2,y,Material::Air, Material::Steam);
                 }
                 if (random()<0.03 || y<1) {
@@ -357,9 +369,9 @@ void GameEngine::updateGame()
             {
                 if (dbc == Material::Air) {
                     if (random()<0.95)
-                        moveDot(x,y,x,y+1,Material::Air,d);
+                        moveDot(x,y,x,y+1,Material::Air,Material::Water);
                 } else if (dbc == Material::Fire) {
-                    moveDot(x,y, x, y+1, Material::Steam, d);
+                    moveDot(x,y,x,y+1, Material::Steam, Material::Water);
                 } else if (m_world->dot(x+1,y) == Material::Fire) {
                     addDot(x,y,Material::Steam);
                     killDot(x+1,y);
@@ -367,21 +379,21 @@ void GameEngine::updateGame()
                     addDot(x, y, Material::Steam);
                     killDot(x-1, y);
                 } else if (dbc==Material::Oil && random()<0.3) {
-                    moveDot(x,y,x,y+1,Material::Oil,d);
+                    moveDot(x,y,x,y+1,Material::Oil,Material::Water);
                 } else if (dbc==Material::Acid && random()<0.01) {
                     killDot(x,y+1);
                 } else if (m_world->dot(x+1,y)==Material::Oil && random()<0.1) {
-                    moveDot(x+1,y,x,y,d,Material::Oil);
+                    moveDot(x+1,y,x,y,Material::Water,Material::Oil);
                 } else if (m_world->dot(x-1,y)==Material::Oil && random()<0.1) {
-                    moveDot(x-1,y,x,y,d,Material::Oil);
+                    moveDot(x-1,y,x,y,Material::Water,Material::Oil);
 
                     // } else if (m_world_new->dot(x+1,y)==Brush::Acid && random()<0.4) {
-                    //     moveDot(x+1,y,x,y,d,Brush::Acid);
+                    //     moveDot(x+1,y,x,y,Material::Water,Brush::Acid);
                     // } else if (m_world_new->dot(x-1,y)==Brush::Acid && random()<0.4) {
-                    //     moveDot(x-1,y,x,y,d,Brush::Acid);
+                    //     moveDot(x-1,y,x,y,Material::Water,Brush::Acid);
 
                 } else {
-                    liquid(x,y,d);
+                    liquid(x,y,Material::Water);
                 }
             }
                 break;
@@ -400,7 +412,7 @@ inline void GameEngine::boom(const int x, const int y, const Material mat)
 {
     for (int i = 0; i < C_EXPLOSION_BLAST_WIDTH_IN_DOTS; ++i) {
         for (int j = 0; j < C_EXPLOSION_BLAST_HEIGHT_IN_DOTS; ++j) {
-            addDot(x+i, y-j, mat);
+            addDot(x-1+i, y-j, mat);
         }
     }
 }
@@ -450,13 +462,13 @@ inline void GameEngine::moveDot(const int x, const int y,
                                 const int nx, const int ny,
                                 const Material mat, const Material nMat)
 {
-    m_world->setDot(x,y,mat);
-    m_world->setDot(nx,ny,nMat);
+    addDot(x,y,mat);
+    addDot(nx,ny,nMat);
 }
 
 inline void GameEngine::killDot(const int x, const int y)
 {
-    m_world->setDot(x,y,Material::Air);
+    addDot(x,y,Material::Air);
 }
 
 /***********************************************************************************
