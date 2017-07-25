@@ -121,20 +121,24 @@ void GameWidget::paintEvent(QPaintEvent *event)
 void GameWidget::paintGrid(QPainter &p)
 {
     Q_ASSERT(m_engine);
-    GameWorld* world = m_engine->world();
+    const GameWorld* world = m_engine->world();
     if (!world) return;
 
     QRect borders(0, 0, width()-1, height()-1);
     QColor gridColor = m_gridColor;
     gridColor.setAlpha(10);
     p.setPen(gridColor);
-    double cellWidth = (double)width()/world->width();
-    for(double k = cellWidth; k <= width(); k += cellWidth) {
-        p.drawLine(k, 0, k, height());
+
+    const qreal cellWidth = (qreal)width()/world->width();
+    const qreal cellHeight = (qreal)height()/world->height();
+
+    for (int x = world->width(); x >= 0; x--) {
+        const int left = qFloor(cellWidth * x);
+        p.drawLine(left, 0, left, height());
     }
-    double cellHeight = (double)height()/world->height();
-    for(double k = cellHeight; k <= height(); k += cellHeight) {
-        p.drawLine(0, k, width(), k);
+    for (int y = world->height(); y >= 0; y--) {
+        const int top  = qFloor(cellHeight * y);
+        p.drawLine(0, top, width(), top);
     }
     p.drawRect(borders);
 }
@@ -142,28 +146,28 @@ void GameWidget::paintGrid(QPainter &p)
 void GameWidget::paintUniverse(QPainter &p)
 {
     Q_ASSERT(m_engine);
-    GameWorld* world = m_engine->world();
+    const GameWorld* world = m_engine->world();
     if (!world) return;
 
-    double cellWidth = (double)width()/world->width();
-    double cellHeight = (double)height()/world->height();
+    const qreal cellWidth = (qreal)width()/world->width();
+    const qreal cellHeight = (qreal)height()/world->height();
 
     for (int y = world->height(); y >= 0; y--) {
-        for (int x = 0; x < world->width(); x++) {
+        for (int x = world->width(); x >= 0; x--) {
 
-            Material mat = world->dot(x,y);
-            ColorVariation c = world->colorVariation(x,y);
+            const Material mat = world->dot(x,y);
+            const ColorVariation c = world->colorVariation(x,y);
 
             /// \todo Draw only new dots ?
 
             Q_ASSERT(mat >= Material::Acid && mat <= Material::Water);
 
             if (mat != Material::Air) {
-                qreal left = (qreal)(cellWidth*x);
-                qreal top  = (qreal)(cellHeight*y);
-                QRectF r(left, top, (qreal)cellWidth, (qreal)cellHeight);
+                const int left = qFloor(cellWidth * x);
+                const int top  = qFloor(cellHeight * y);
+                const QRect r(left, top, qCeil(cellWidth), qCeil(cellHeight));
 
-                QColor color1 = materialColor(mat, c);
+                const QColor color1 = materialColor(mat, c);
                 p.fillRect(r, QBrush(color1));
             }
 
