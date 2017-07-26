@@ -105,7 +105,7 @@ void GameWorld::setDot(const int x, const int y, const Material material)
     if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
         m_world[ y * m_width + x ] = (char)material;
     } else {
-        qWarning() << Q_FUNC_INFO << "Warning: out of bound" << x << y;
+        //qWarning() << Q_FUNC_INFO << "Warning: out of bound" << x << y;
     }
 }
 
@@ -124,7 +124,7 @@ void GameWorld::setColorVariation(const int x, const int y, const ColorVariation
     if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
         m_worldColor[ y * m_width + x ] = (bool)color;
     } else {
-        qWarning() << Q_FUNC_INFO << "Warning: out of bound" << x << y;
+        //qWarning() << Q_FUNC_INFO << "Warning: out of bound" << x << y;
     }
 }
 
