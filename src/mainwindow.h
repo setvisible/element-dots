@@ -39,8 +39,10 @@ public:
     ~MainWindow();
 
 private Q_SLOTS:
-    void about();
+    void reset();
+    void apply();
     void onRadioChanged();
+    void about();
 
 private:
     Ui::MainWindow *ui;

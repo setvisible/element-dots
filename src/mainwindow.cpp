@@ -62,6 +62,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(ui->radioButton_water,  SIGNAL(released()), this, SLOT(onRadioChanged()));
 
     connect(ui->clearButton, SIGNAL(released()), ui->gamewidget, SLOT(clear()));
+    connect(ui->randomFillButton, SIGNAL(released()), ui->gamewidget, SLOT(fillRandomly()));
+    connect(ui->applyOptionButton, SIGNAL(released()), this, SLOT(apply()));
+    connect(ui->resetButton, SIGNAL(released()), this, SLOT(reset()));
+
+    this->reset();
 
     // Enforce the default "Earth" material
     ui->radioButton_earth->setChecked(false);
@@ -76,11 +81,14 @@ MainWindow::~MainWindow()
 
 /***********************************************************************************
  ***********************************************************************************/
-void MainWindow::about()
+void MainWindow::reset()
 {
-    QMessageBox msgBox(QMessageBox::NoIcon, tr("About %0").arg(STR_APPLICATION_NAME), aboutHtml());
-    msgBox.exec();
+    ui->heightSpinBox->setValue(160);
+    ui->widthSpinBox->setValue(160);
+    ui->threadsSpinBox->setValue(3);
+    apply();
 }
+
 
 void MainWindow::onRadioChanged()
 {
@@ -91,3 +99,21 @@ void MainWindow::onRadioChanged()
     }
 }
 
+void MainWindow::apply()
+{
+    const int w = ui->widthSpinBox->value();
+    const int h = ui->heightSpinBox->value();
+    const int threads = ui->threadsSpinBox->value();
+    if (w > 0 && h > 0) {
+        ui->gamewidget->setWorldSize(w, h);
+    }else {
+        QMessageBox::warning(this, tr("Error"), tr("The world must have width > 0 and height > 0.") );
+    }
+    ui->gamewidget->setThreadsNumber(threads);
+}
+
+void MainWindow::about()
+{
+    QMessageBox msgBox(QMessageBox::NoIcon, tr("About %0").arg(STR_APPLICATION_NAME), aboutHtml());
+    msgBox.exec();
+}
