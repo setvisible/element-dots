@@ -22,27 +22,34 @@
  * SOFTWARE.
  */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef PERFS_H
+#define PERFS_H
 
 #include <QtCore/QTime>
-#include <QtCore/qmath.h>
 
-static bool seeded = false;
-
-/*!
- * \brief Return a random value between 0 and 1.
+/*
+ * Macros for performance measurement
  */
-static double random()
-{
-    if (!seeded) {
-        /* initialize the pseudo-random number generator with a seed value. */
-        qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-        seeded = true;
+
+
+#if defined(QT_DEBUG)
+#define CREATE_PERFS_MEASUREMENT(AFUNC) \
+    static QTime _s_time_##AFUNC
+#define PERFS_MEASURE_START(AFUNC){ \
+    _s_time_##AFUNC.restart();  \
     }
-    Q_ASSERT(RAND_MAX > 0);
-    return (double)(qrand())/RAND_MAX;
-}
+#define PERFS_MEASURE_STOP(AFUNC){ \
+    qDebug() << Q_FUNC_INFO << _s_time_##AFUNC.elapsed() << "ms"; \
+    }
+#else
+#define CREATE_PERFS_MEASUREMENT(AFUNC)
+#define PERFS_MEASURE_START(AFUNC)
+#define PERFS_MEASURE_STOP(AFUNC)
+#endif;
 
 
-#endif // UTILS_H
+
+
+
+
+#endif // PERFS_H
