@@ -45,5 +45,25 @@ static double random()
 }
 
 
+/*
+ * Macros for performance measurement
+ */
+#ifndef PERFS_MEASUREMENT
+# define PERFS_MEASUREMENT
+
+# define CREATE_PERFS_MEASUREMENT(AFUNC) \
+    static QTime _s_time_##AFUNC;
+
+# define PERFS_MEASURE_START(AFUNC){ \
+    _s_time_##AFUNC.restart();  \
+    }
+
+# define PERFS_MEASURE_STOP(AFUNC){ \
+    qDebug() << Q_FUNC_INFO << _s_time_##AFUNC.elapsed() << "ms"; \
+    }
+
+#endif
+
+
 
 #endif // UTILS_H
