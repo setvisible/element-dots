@@ -27,10 +27,12 @@
 #include <QtCore/QDebug>
 
 /*! \class GameWorld
- *  \brief Th class GameWorld holds the scene of the game.
+ *  \brief The class GameWorld holds the scene of the game.
  *
  * It hides the scene's buffers.
  * It hides also some internal variables that speed up the memory accesses.
+ *
+ * The class GameWorld is reentrant but not thread-safe.
  *
  * \subsection sec-coord-sys Coordinate System
  *
@@ -44,6 +46,7 @@
  *   3 |
  *     V y   height=4
  * \endcode
+ *
  */
 
 GameWorld::GameWorld(QObject *parent) : QObject(parent)
@@ -71,13 +74,10 @@ void GameWorld::clear()
 
     memset(m_world, (char)Material::Air, sizeof(char) * m_height * m_width);
     memset(m_worldColor, false, sizeof(bool) * m_height * m_width);
-
-    emit changed();
 }
 
 /***********************************************************************************
  ***********************************************************************************/
-
 int GameWorld::width() const
 {
     return m_width;
@@ -90,11 +90,8 @@ int GameWorld::height() const
 
 void GameWorld::setSize(const int width, const int height)
 {
-    Q_ASSERT(width>0 && height>0);
-
-    if (width>0) m_width = width;
-    if (height>0) m_height = height;
-
+    m_width  = (width>0) ? width  : 16 ;
+    m_height = (height>0)? height : 16 ;
     clear();
 }
 
@@ -104,8 +101,6 @@ void GameWorld::setDot(const int x, const int y, const Material material)
 {
     if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
         m_world[ y * m_width + x ] = (char)material;
-    } else {
-        //qWarning() << Q_FUNC_INFO << "Warning: out of bound" << x << y;
     }
 }
 
@@ -123,8 +118,6 @@ void GameWorld::setColorVariation(const int x, const int y, const ColorVariation
 {
     if (x >= 0 && y >= 0 && x < m_width && y < m_height) {
         m_worldColor[ y * m_width + x ] = (bool)color;
-    } else {
-        //qWarning() << Q_FUNC_INFO << "Warning: out of bound" << x << y;
     }
 }
 

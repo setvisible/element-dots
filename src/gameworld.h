@@ -38,9 +38,6 @@ public:
 
     void clear();
 
-Q_SIGNALS:
-    void changed();
-
 public Q_SLOTS:
     int width() const;
     int height() const;
