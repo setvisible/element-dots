@@ -37,7 +37,7 @@ static double random()
 {
     if (!seeded) {
         /* initialize the pseudo-random number generator with a seed value. */
-        qsrand(QTime::currentTime().msec());
+        qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
         seeded = true;
     }
     Q_ASSERT(RAND_MAX > 0);
