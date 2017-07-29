@@ -4,6 +4,7 @@
 TEMPLATE = app
 TARGET   = ElementDots
 QT       += core gui
+QT       += concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -30,9 +31,11 @@ HEADERS += \
     $$PWD/builddefs.h \
     $$PWD/gameengine.h \
     $$PWD/gamematerial.h \
+    $$PWD/gamerenderer.h \
     $$PWD/gamewidget.h \
     $$PWD/gameworld.h \
     $$PWD/globals.h \
+    $$PWD/perfs.h \
     $$PWD/utils.h \
     $$PWD/materialradiobutton.h \
     $$PWD/mainwindow.h
@@ -40,6 +43,7 @@ HEADERS += \
 SOURCES += \
     $$PWD/gameengine.cpp \
     $$PWD/gamematerial.cpp \
+    $$PWD/gamerenderer.cpp \
     $$PWD/gamewidget.cpp \
     $$PWD/gameworld.cpp \
     $$PWD/materialradiobutton.cpp \
