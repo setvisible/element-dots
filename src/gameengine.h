@@ -26,6 +26,7 @@
 #define GAME_ENGINE_H
 
 #include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
 
 #include "gamematerial.h"
 
@@ -45,26 +46,32 @@ public:
     explicit GameEngine(QObject *parent = 0);
     ~GameEngine();
 
-Q_SIGNALS:
-    void changed();
-
-public Q_SLOTS:
-    void clear();
+    QSharedPointer<GameWorld> world() const;
 
     Material currentMaterial() const;
     void setCurrentMaterial(const Material material);
 
-    GameWorld* world() const;
+    int width() const;
+    int height() const;
+    void setSize(const int width, const int height);
 
     void setMousePressed(const bool pressed);
     void moveMouseTo(const int posX, const int posY);
+
+Q_SIGNALS:
+    void changed();
+    void sizeChanged();
+
+public Q_SLOTS:
+    void clear();
+    void fillRandomly();
 
 private Q_SLOTS:
     void updateGame();
     void spawnFountain();
 
 private:
-    GameWorld* m_world;
+    QSharedPointer<GameWorld> m_world;
     QTimer* m_updateTimer;
     QTimer* m_fountainTimer;
     bool m_isMousePressed;
@@ -73,6 +80,7 @@ private:
     Material m_currentMaterial;
     QList<Fountain> m_fountains;
 
+    void resetFountains();
 
     inline void boom(const int x, const int y, const Material mat);
     inline void liquid(const int x, const int y, const Material mat);

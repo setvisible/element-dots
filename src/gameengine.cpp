@@ -42,14 +42,12 @@
  * - 1 integer on a 64-bit machine contains 16 dots.
  *
  */
-#define C_WORLD_WIDTH_IN_DOTS   160
-#define C_WORLD_HEIGHT_IN_DOTS  160
 
 #define C_EXPLOSION_BLAST_WIDTH_IN_DOTS     3
 #define C_EXPLOSION_BLAST_HEIGHT_IN_DOTS   20
 
 #define C_INTERVAL_UPDATE_IN_MILLISECOND    30 // 30ms -> ~33Hz
-#define C_INTERVAL_FOUNTAIN_IN_MILLISECOND 100 // 200ms -> 5Hz
+#define C_INTERVAL_FOUNTAIN_IN_MILLISECOND 100 // 100ms -> 10Hz
 
 
 /*! \class GameEngine
@@ -81,11 +79,7 @@ GameEngine::GameEngine(QObject *parent) : QObject(parent)
   , m_currentMaterial(Material::Water)
 {
     /* initialize the game */
-    m_world->setSize(C_WORLD_WIDTH_IN_DOTS, C_WORLD_HEIGHT_IN_DOTS);
-
-    m_fountains << Fountain{(int)(0.6 * m_world->width()/2), (int)(m_world->width()/5), Material::Water};
-    m_fountains << Fountain{(int)(1.0 * m_world->width()/2), (int)(m_world->width()/5), Material::Sand};
-    m_fountains << Fountain{(int)(1.4 * m_world->width()/2), (int)(m_world->width()/5), Material::Oil};
+    resetFountains();
 
     /* initialize the timers */
     m_updateTimer->setInterval(C_INTERVAL_UPDATE_IN_MILLISECOND);
@@ -104,10 +98,41 @@ GameEngine::~GameEngine()
 
 void GameEngine::clear()
 {
-    // stop the worker
-
     m_world->clear();
     emit changed();
+}
+
+void GameEngine::fillRandomly()
+{
+    for (int y = m_world->height()-1; y >= 0; --y) {
+        for (int x = 0; x < m_world->width(); ++x) {
+
+            double r = random();
+            Material mat;
+            if (r > 0.75) {
+                mat = Material::Earth;
+            } else if (r > 0.5) {
+                mat = Material::Rock;
+            } else if (r > 0.25) {
+                mat = Material::Water;
+            } else {
+                mat = Material::Fire;
+            }
+
+            m_world->setDot(x,y,mat);
+            ColorVariation c = computeRandomColor(mat);
+            m_world->setColorVariation(x,y,c);
+        }
+    }
+
+}
+
+
+/***********************************************************************************
+ ***********************************************************************************/
+QSharedPointer<GameWorld> GameEngine::world() const
+{
+    return m_world;
 }
 
 /***********************************************************************************
@@ -122,9 +147,38 @@ void GameEngine::setCurrentMaterial(const Material material)
     m_currentMaterial = material;
 }
 
-GameWorld* GameEngine::world() const
+/***********************************************************************************
+ ***********************************************************************************/
+int GameEngine::width() const
 {
-    return m_world;
+    return m_world->width();
+}
+
+int GameEngine::height() const
+{
+    return m_world->height();
+}
+
+void GameEngine::setSize(const int width, const int height)
+{
+    if (width == m_world->width() && height == m_world->height())
+        return;
+    m_world->setSize(width, height);
+    resetFountains();
+    emit sizeChanged();
+}
+
+/***********************************************************************************
+ ***********************************************************************************/
+void GameEngine::resetFountains()
+{
+    const int width = m_world->width();
+    const int height = m_world->height();
+    m_fountains.clear();
+    m_fountains << Fountain{(int)(0.6*width/2), (int)(height/10), Material::Water};
+    m_fountains << Fountain{(int)(1.0*width/2), (int)(height/10), Material::Sand};
+    m_fountains << Fountain{(int)(1.4*width/2), (int)(height/10), Material::Oil};
+
 }
 
 /***********************************************************************************
@@ -160,8 +214,8 @@ void GameEngine::moveMouseTo(const int posX, const int posY)
  ***********************************************************************************/
 void GameEngine::updateGame()
 {
-    for (int y = m_world->height()-1; y >= 0; y--) {
-        for (int x = 0; x < m_world->width(); x++) {
+    for (int y = m_world->height()-1; y >= 0; --y) {
+        for (int x = 0; x < m_world->width(); ++x) {
 
             /// \todo if (m_worldLock[y * gameAreaSizeWidth + x]==true) continue;
 
@@ -464,7 +518,7 @@ inline void GameEngine::killDot(const int x, const int y)
  ***********************************************************************************/
 void GameEngine::spawnFountain()
 {
-    for (int i = 0; i < m_fountains.count(); i++) {
+    for (int i = 0; i < m_fountains.count(); ++i) {
         spawnDot(m_fountains.at(i).x, m_fountains.at(i).y, m_fountains.at(i).type);
     }
     spawnMouse();
