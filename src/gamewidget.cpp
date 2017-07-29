@@ -26,21 +26,34 @@
 
 #include "gameengine.h"
 #include "gameworld.h"
-#include "utils.h"
+#include "gamerenderer.h"
+#include "perfs.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
+#include <QtGui/QPixmapCache>
+#include <QtConcurrent/QtConcurrent>
 #include <QtCore/qmath.h>
+#include <QtCore/QTime>
 
+CREATE_PERFS_MEASUREMENT(666);
+
+static const char* C_PIXMAP_KEY_DOTS = "big_image_dots";
+static const char* C_PIXMAP_KEY_GRID = "big_image_grid";
 
 GameWidget::GameWidget(QWidget *parent) : QWidget(parent)
   , m_engine(new GameEngine(this))
+  , m_threads(3)
 {
     setCursor(Qt::CrossCursor);
     m_gridColor = "#000";
+    m_gridColor.setAlpha(10);
 
-    connect(m_engine, SIGNAL(changed()), this, SLOT(update()));
+    connect(m_engine, SIGNAL(changed()), this, SLOT(paintFrame()));
+    connect(m_engine, SIGNAL(sizeChanged()), this, SLOT(paint()));
+
+    m_engine->setSize(160, 160);
 }
 
 GameWidget::~GameWidget()
@@ -50,6 +63,11 @@ GameWidget::~GameWidget()
 void GameWidget::clear()
 {
     m_engine->clear();
+}
+
+void GameWidget::fillRandomly()
+{
+    m_engine->fillRandomly();
 }
 
 /***********************************************************************************
@@ -64,13 +82,41 @@ void GameWidget::setCurrentMaterial(const Material mat)
     m_engine->setCurrentMaterial(mat);
 }
 
+/***********************************************************************************
+ ***********************************************************************************/
+int GameWidget::worldWidth() const
+{
+    return m_engine->width();
+}
+
+int GameWidget::worldHeight() const
+{
+    return m_engine->height();
+}
+
+void GameWidget::setWorldSize(const int width, const int height)
+{
+    m_engine->setSize(width, height);
+}
+
+/***********************************************************************************
+ ***********************************************************************************/
+int GameWidget::threadsNumber() const
+{
+    return m_threads;
+}
+
+void GameWidget::setThreadsNumber(const int threads)
+{
+    m_threads = threads;
+}
 
 /***********************************************************************************
  ***********************************************************************************/
 void GameWidget::mousePressEvent(QMouseEvent *event)
 {
     Q_ASSERT(m_engine);
-    GameWorld* world = m_engine->world();
+    QSharedPointer<GameWorld> world = m_engine->world();
     if (!world) return;
 
     if (event->buttons() & Qt::LeftButton) {
@@ -94,8 +140,7 @@ void GameWidget::mouseReleaseEvent(QMouseEvent *event)
 void GameWidget::mouseMoveEvent(QMouseEvent *event)
 {
     Q_ASSERT(m_engine);
-    GameWorld* world = m_engine->world();
-    if (!world) return;
+    QSharedPointer<GameWorld> world = m_engine->world();
 
     const double cellWidth = (double)width()/world->width();
     const double cellHeight = (double)height()/world->height();
@@ -103,81 +148,141 @@ void GameWidget::mouseMoveEvent(QMouseEvent *event)
     const int posY = qFloor(event->y()/cellHeight);
 
     m_engine->moveMouseTo(posX, posY);
-
-
 }
 
 /***********************************************************************************
  ***********************************************************************************/
-void GameWidget::paintEvent(QPaintEvent *event)
+void GameWidget::paintEvent(QPaintEvent *)
+{
+    /*
+     * We store the current frame as a QPixmap in a QPixmapCache.
+     * Indeed, paintEvent() is called very often,
+     * generally more frequently than the frame rate.
+     */
+
+    /*
+     * Q: Why do we use QPixmap (rather than QBitmap or QImage)?
+     * From the QImage documentation:
+     *    QImage is designed and optimized for I/O, and for direct pixel
+     *    access and manipulation, while QPixmap is designed and optimized
+     *    for showing images on screen."
+     */
+
+    PERFS_MEASURE_START(666);
+
+    QPixmap pm;
+    if (!QPixmapCache::find(C_PIXMAP_KEY_DOTS, &pm)) {
+        pm = generatePixmapDots();
+        QPixmapCache::insert(C_PIXMAP_KEY_DOTS, pm);
+    }
+    QPixmap pgrid;
+    if (!QPixmapCache::find(C_PIXMAP_KEY_GRID, &pgrid)) {
+        pgrid = generatePixmapGrid();
+        QPixmapCache::insert(C_PIXMAP_KEY_GRID, pgrid);
+    }
+
+    QPainter widgetPainter(this);
+    widgetPainter.drawPixmap(0, 0, pgrid);
+    widgetPainter.drawPixmap(0, 0, pm);
+
+    PERFS_MEASURE_STOP(666);
+}
+
+void GameWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
-    QPainter p(this);
-    paintGrid(p);
-    paintUniverse(p);
+    paint();
 }
 
-void GameWidget::paintGrid(QPainter &p)
+/***********************************************************************************
+ ***********************************************************************************/
+void GameWidget::paint()
 {
-    Q_ASSERT(m_engine);
-    const GameWorld* world = m_engine->world();
-    if (!world) return;
-
-    QRect borders(0, 0, width()-1, height()-1);
-    QColor gridColor = m_gridColor;
-    gridColor.setAlpha(10);
-    p.setPen(gridColor);
-
-    const qreal cellWidth = (qreal)width()/world->width();
-    const qreal cellHeight = (qreal)height()/world->height();
-
-    for (int x = world->width(); x >= 0; x--) {
-        const int left = qFloor(cellWidth * x);
-        p.drawLine(left, 0, left, height());
-    }
-    for (int y = world->height(); y >= 0; y--) {
-        const int top  = qFloor(cellHeight * y);
-        p.drawLine(0, top, width(), top);
-    }
-    p.drawRect(borders);
+    QPixmapCache::remove(C_PIXMAP_KEY_DOTS);
+    QPixmapCache::remove(C_PIXMAP_KEY_GRID);
+    update();
 }
 
-void GameWidget::paintUniverse(QPainter &p)
+void GameWidget::paintFrame()
 {
-    Q_ASSERT(m_engine);
-    GameWorld* world = m_engine->world();
-    if (!world) return;
+    QPixmapCache::remove(C_PIXMAP_KEY_DOTS);
+    update();
+}
 
-    const qreal cellWidth = (qreal)width()/world->width();
-    const qreal cellHeight = (qreal)height()/world->height();
 
-    for (int y = world->height(); y >= 0; y--) {
-        for (int x = world->width(); x >= 0; x--) {
+inline QPixmap GameWidget::generatePixmapGrid()
+{
+    GameRenderer::Tile tile;
+    tile.world =  m_engine->world();
+    QPixmap pix(this->width(), this->height());
+    pix.fill(this->palette().background().color());
+    tile.pixmap = pix;
+    tile.totalSize = this->size();
+    GameRenderer::paintGrid(tile, m_gridColor);
+    return tile.pixmap;
+}
 
-            const Material mat = world->dot(x,y);
-            const ColorVariation c = world->colorVariation(x,y);
+inline QPixmap GameWidget::generatePixmapDots()
+{
+    /*
+     * QPainter's methods (drawLine(), drawRect(), fillRect()...)
+     * are very expensive. We take advantage of thread concurrency
+     * on multi-core machine to make the rendering faster.
+     *
+     * We use a Map/Reduce Heuristic.
+     *
+     * The world's surface is divided in several sub-surfaces ("tiles").
+     * Each tile is sent to the QtConcurrent's map methods.
+     * The Qt's map method sends each tile in a separated thread
+     * to be drawn concurrently.
+     *
+     * Finally we copy the tiles in an unique image during the "reduce" process.
+     */
 
-            /* Permute colors to rendering liquid effect */
-            const Material mat1 = world->dot(x,y-1);
-            const ColorVariation c1 = world->colorVariation(x,y-1);
-            if (isLiquid(mat) && mat == mat1 && random()<0.1) {
-                if (c1 != c) {
-                    world->setColorVariation(x,y,c1);
-                    world->setColorVariation(x,y-1,c);
-                }
-            }
+    QPixmap pm(this->size());
+    pm.fill(Qt::transparent);
 
-            /* Draw the dot */
-            if (mat != Material::Air) {
-                const int left = qFloor(cellWidth * x);
-                const int top  = qFloor(cellHeight * y);
-                const QRect r(left, top, qCeil(cellWidth), qCeil(cellHeight));
+    Q_ASSERT(m_engine && m_engine->world());
 
-                const QColor color1 = materialColor(mat, c);
-                p.fillRect(r, QBrush(color1));
-            }
+    const int count = (m_threads > 0) ? qCeil(qSqrt(m_threads)) + 1 : 1;
+    Q_ASSERT(count>0);
 
+    const int tileWidth = qCeil((qreal)m_engine->world()->width()/count);
+    const int tileHeight = qCeil((qreal)m_engine->world()->height()/count);
+    const qreal pixmapWidth = (qreal)this->width()/count;
+    const qreal pixmapHeight = (qreal)this->height()/count;
+
+    // Create a list containing imageCount images.
+    QList<GameRenderer::Tile> tiles;
+    for (int i = 0; i < count; ++i) {
+        for (int j = 0; j < count; ++j) {
+            GameRenderer::Tile tile;
+            tile.world =  m_engine->world();
+            tile.x1 = i*tileWidth;
+            tile.y1 = j*tileHeight;
+            tile.x2 = qMin((i+1)*tileWidth, m_engine->world()->width());
+            tile.y2 = qMin((j+1)*tileHeight, m_engine->world()->height());
+            tile.offset = QPoint( qCeil(pixmapWidth*i), qCeil(pixmapHeight*j) );
+
+            QPixmap pix(qCeil(pixmapWidth), qCeil(pixmapHeight));
+            pix.fill(Qt::transparent);
+            tile.pixmap = pix;
+
+            tile.totalSize = this->size();
+            tiles << tile;
         }
     }
-}
 
+    /* Map */
+    QtConcurrent::blockingMap(tiles, &GameRenderer::paintTile);
+
+    /* Reduce */
+    QPainter collagePainter(&pm);
+    foreach (const GameRenderer::Tile &tile, tiles) {
+        QRectF source(0.0, 0.0, tile.pixmap.width(), tile.pixmap.height());
+        QRectF target(tile.offset.x(), tile.offset.y(), tile.pixmap.width(), tile.pixmap.height());
+        collagePainter.drawPixmap(target, tile.pixmap, source);
+    }
+
+    return pm;
+}

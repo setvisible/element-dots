@@ -29,7 +29,10 @@
 
 #include "gamematerial.h"
 
+class GameWorld;
 class GameEngine;
+
+
 class GameWidget : public QWidget
 {
     Q_OBJECT
@@ -40,23 +43,37 @@ public:
     Material currentMaterial() const;
     void setCurrentMaterial(const Material mat);
 
+    int worldWidth() const;
+    int worldHeight() const;
+    void setWorldSize(const int width, const int height);
+
+    int threadsNumber() const;
+    void setThreadsNumber(const int threads);
+
+public Q_SLOTS:
+    void clear();
+    void fillRandomly();
+
+Q_SIGNALS:
+
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent *event);
 
-Q_SIGNALS:
-
-public Q_SLOTS:
-    void clear();
+private Q_SLOTS:
+    void paint();
+    void paintFrame();
 
 private:
     GameEngine* m_engine;
     QColor m_gridColor;
+    int m_threads;
 
-    void paintGrid(QPainter &p);
-    void paintUniverse(QPainter &p);
+    inline QPixmap generatePixmapDots();
+    inline QPixmap generatePixmapGrid();
 
 };
 
