@@ -31,7 +31,6 @@
  * Macros for performance measurement
  */
 
-
 #if defined(QT_DEBUG)
 #define CREATE_PERFS_MEASUREMENT(AFUNC) \
     static QTime _s_time_##AFUNC
@@ -45,11 +44,7 @@
 #define CREATE_PERFS_MEASUREMENT(AFUNC)
 #define PERFS_MEASURE_START(AFUNC)
 #define PERFS_MEASURE_STOP(AFUNC)
-#endif;
-
-
-
-
+#endif
 
 
 #endif // PERFS_H
