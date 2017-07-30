@@ -33,7 +33,7 @@ static bool seeded = false;
 /*!
  * \brief Return a random value between 0 and 1.
  */
-static double random()
+static double myrandom()
 {
     if (!seeded) {
         /* initialize the pseudo-random number generator with a seed value. */

@@ -106,7 +106,7 @@ static inline double materialRandomBreakValue(const Material material)
 
 ColorVariation computeRandomColor(const Material material)
 {
-    return (random() < materialRandomBreakValue(material) )
+    return (myrandom() < materialRandomBreakValue(material) )
             ? ColorVariation::Color0
             : ColorVariation::Color1;
 }

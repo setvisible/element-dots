@@ -82,7 +82,7 @@ void GameRenderer::paintTile(GameRenderer::Tile &tile)
             /* Permute colors to rendering liquid effect */
             const Material mat1 = world->dot(x,y-1);
             const ColorVariation c1 = world->colorVariation(x,y-1);
-            if (isLiquid(mat) && mat == mat1 && random()<0.1) {
+            if (isLiquid(mat) && mat == mat1 && myrandom()<0.1) {
                 if (c1 != c) {
                     world->setColorVariation(x,y,c1);
                     world->setColorVariation(x,y-1,c);
